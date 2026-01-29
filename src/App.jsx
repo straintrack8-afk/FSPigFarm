@@ -544,20 +544,20 @@ function FarmFSCalculator() {
   const SummaryTab = useMemo(() => (
     <div className="space-y-6">
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-        <SummaryCard title={t.summary.npv} value={`IDR ${formatNumber(projection.summary.npv)} M`} positive={projection.summary.npv >= 0} />
+        <SummaryCard title={t.summary.npv} value={`IDR ${formatNumber(projection.summary.npv)} ${t.units.million}`} positive={projection.summary.npv >= 0} />
         <SummaryCard title={t.summary.irr} value={formatPercent(projection.summary.irr)} />
         <SummaryCard title={t.summary.payback} value={`${formatNumber(projection.summary.paybackPeriod, 2)} ${t.units.years}`} />
         <SummaryCard title={`${t.summary.roi} ${t.fields.year1}`} value={formatPercent(projection.summary.roiYear1)} positive={projection.summary.roiYear1 >= 0} />
-        <SummaryCard title={`${inputs.projectDuration}-${t.units.year} ${t.projection.items.netProfit}`} value={`IDR ${formatNumber(projection.summary.totalNetProfit)} M`} positive={projection.summary.totalNetProfit >= 0} />
-        <SummaryCard title={`${inputs.projectDuration}-${t.units.year} ${t.projection.revenue}`} value={`IDR ${formatNumber(projection.summary.totalRevenue)} M`} />
+        <SummaryCard title={`${inputs.projectDuration}-${t.units.year} ${t.projection.items.netProfit}`} value={`IDR ${formatNumber(projection.summary.totalNetProfit)} ${t.units.million}`} positive={projection.summary.totalNetProfit >= 0} />
+        <SummaryCard title={`${inputs.projectDuration}-${t.units.year} ${t.projection.revenue}`} value={`IDR ${formatNumber(projection.summary.totalRevenue)} ${t.units.million}`} />
       </div>
       {farmType === 'integrated' && (
         <div className="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl p-4 border border-indigo-200">
           <h3 className="font-bold text-indigo-800 mb-3">{t.sections.investmentSummary}</h3>
           <div className="grid grid-cols-3 gap-4 text-sm">
-            <div className="bg-white p-3 rounded-lg"><div className="text-xs text-gray-500">{t.sections.breeding} CAPEX</div><div className="font-bold text-emerald-600">IDR {formatNumber(projection.capex.breedingCapex)} M</div></div>
-            <div className="bg-white p-3 rounded-lg"><div className="text-xs text-gray-500">{t.sections.fattening} CAPEX</div><div className="font-bold text-orange-600">IDR {formatNumber(projection.capex.fatteningCapex)} M</div></div>
-            <div className="bg-white p-3 rounded-lg"><div className="text-xs text-gray-500">Total CAPEX</div><div className="font-bold text-indigo-600">IDR {formatNumber(projection.capex.totalCapex)} M</div></div>
+            <div className="bg-white p-3 rounded-lg"><div className="text-xs text-gray-500">{t.sections.breeding} CAPEX</div><div className="font-bold text-emerald-600">IDR {formatNumber(projection.capex.breedingCapex)} {t.units.million}</div></div>
+            <div className="bg-white p-3 rounded-lg"><div className="text-xs text-gray-500">{t.sections.fattening} CAPEX</div><div className="font-bold text-orange-600">IDR {formatNumber(projection.capex.fatteningCapex)} {t.units.million}</div></div>
+            <div className="bg-white p-3 rounded-lg"><div className="text-xs text-gray-500">Total CAPEX</div><div className="font-bold text-indigo-600">IDR {formatNumber(projection.capex.totalCapex)} {t.units.million}</div></div>
           </div>
         </div>
       )}
@@ -632,7 +632,7 @@ function FarmFSCalculator() {
                     )}
                   </div>
                   <div className="text-xs space-y-1 mb-3">
-                    <div className="flex justify-between"><span className="text-gray-500">NPV:</span><span className={scenario.summary.npv >= 0 ? 'text-emerald-600' : 'text-red-600'}>{formatNumber(scenario.summary.npv)} M</span></div>
+                    <div className="flex justify-between"><span className="text-gray-500">NPV:</span><span className={scenario.summary.npv >= 0 ? 'text-emerald-600' : 'text-red-600'}>{formatNumber(scenario.summary.npv)} {t.units.million}</span></div>
                     <div className="flex justify-between"><span className="text-gray-500">IRR:</span><span className="text-blue-600">{formatPercent(scenario.summary.irr)}</span></div>
                   </div>
                   {!compareMode && (
@@ -665,9 +665,9 @@ function FarmFSCalculator() {
                 </thead>
                 <tbody className="divide-y">
                   <tr><td className="px-3 py-2 font-medium">{t.scenarios.farmTypeLabel}</td>{compareScenarios.map((s) => <td key={s.id} className="px-3 py-2 text-right capitalize">{t.farmTypes[s.farmType]}</td>)}</tr>
-                  <tr><td className="px-3 py-2 font-medium">NPV</td>{compareScenarios.map((s) => <td key={s.id} className={`px-3 py-2 text-right font-semibold ${s.summary.npv >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>IDR {formatNumber(s.summary.npv)} M</td>)}</tr>
+                  <tr><td className="px-3 py-2 font-medium">NPV</td>{compareScenarios.map((s) => <td key={s.id} className={`px-3 py-2 text-right font-semibold ${s.summary.npv >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>IDR {formatNumber(s.summary.npv)} {t.units.million}</td>)}</tr>
                   <tr><td className="px-3 py-2 font-medium">IRR</td>{compareScenarios.map((s) => <td key={s.id} className="px-3 py-2 text-right font-semibold text-blue-600">{formatPercent(s.summary.irr)}</td>)}</tr>
-                  <tr><td className="px-3 py-2 font-medium">{t.projection.items.total} {t.projection.items.netProfit}</td>{compareScenarios.map((s) => <td key={s.id} className="px-3 py-2 text-right">IDR {formatNumber(s.summary.totalNetProfit)} M</td>)}</tr>
+                  <tr><td className="px-3 py-2 font-medium">{t.projection.items.total} {t.projection.items.netProfit}</td>{compareScenarios.map((s) => <td key={s.id} className="px-3 py-2 text-right">IDR {formatNumber(s.summary.totalNetProfit)} {t.units.million}</td>)}</tr>
                 </tbody>
               </table>
             </div>

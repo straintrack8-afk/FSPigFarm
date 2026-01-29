@@ -294,7 +294,7 @@ export const translations = {
             year: 'thn',
             percent: '%',
             kg: 'kg',
-            million: 'Jt'
+            million: '(Jt)'
         },
 
         // Projection Tab
