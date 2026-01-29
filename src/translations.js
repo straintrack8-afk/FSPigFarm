@@ -59,6 +59,13 @@ export const translations = {
 
         // Field Labels - Farm Information
         fields: {
+            projectKickoff: 'Project Kick-off',
+            firstGiltInDate: 'First Gilt-In Date',
+            firstPigInDate: 'First Pig-In Date',
+            constructionPeriod: 'Construction Period',
+            dateWarning: 'Kick-off must be before First Pig-In',
+            selectMonth: 'Month',
+            selectYear: 'Year',
             farmName: 'Farm Name',
             location: 'Location',
             farmCapacity: 'Farm Capacity (Sow)',
@@ -233,6 +240,13 @@ export const translations = {
 
         // Field Labels - Farm Information
         fields: {
+            projectKickoff: 'Kick-off Proyek',
+            firstGiltInDate: 'Tanggal Masuk Gilt Pertama',
+            firstPigInDate: 'Tanggal Masuk Babi Pertama',
+            constructionPeriod: 'Periode Konstruksi',
+            dateWarning: 'Kick-off harus sebelum Masuk Ternak',
+            selectMonth: 'Bulan',
+            selectYear: 'Tahun',
             farmName: 'Nama Peternakan',
             location: 'Lokasi',
             farmCapacity: 'Kapasitas Peternakan (Induk)',

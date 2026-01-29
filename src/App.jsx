@@ -1,13 +1,68 @@
-﻿import { Save, FileDown, Trash2, Copy, BarChart3, Calculator, FileText, ChevronDown, ChevronUp, ArrowLeftRight, PiggyBank, TrendingUp, Factory, ArrowRight, Languages } from 'lucide-react';
+﻿import { Save, FileDown, Trash2, Copy, BarChart3, Calculator, FileText, ChevronDown, ChevronUp, ArrowLeftRight, PiggyBank, TrendingUp, Factory, ArrowRight, Languages, CalendarClock } from 'lucide-react';
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { translations } from './translations';
 
 
 
+// DATE HELPERS
+const currentDate = new Date();
+const currentMonth = currentDate.getMonth() + 1;
+const currentYear = currentDate.getFullYear();
+const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+const getMonthLabel = (startM, startY, monthIndex) => {
+  const d = new Date(startY, startM - 1 + monthIndex - 1);
+  return `${monthNames[d.getMonth()]}'${d.getFullYear().toString().substr(2)}`;
+};
+
+const getYearLabel = (startY, yearIndex) => startY + yearIndex - 1;
+
+const formatPaybackDate = (startM, startY, years) => {
+  if (!years || years > 50 || years < 0) return '';
+  const totalMonths = Math.round(years * 12);
+  const d = new Date(startY, startM - 1 + totalMonths);
+  const q = Math.floor(d.getMonth() / 3) + 1;
+  return ` (Est. Q${q} ${d.getFullYear()})`;
+};
+
+const getConstructionValidation = (kM, kY, sM, sY, t) => {
+  if (!kM || !kY || !sM || !sY) return { months: undefined };
+  const months = (sY - kY) * 12 + (sM - kM);
+  if (months < 0) return { error: t.messages?.dateWarning || 'Check dates', months };
+  return { months, label: `${months} ${t.units?.months || 'months'}` };
+};
+
+const DateInput = React.memo(({ label, month, year, onChangeMonth, onChangeYear, small, error, warning }) => (
+  <div className={small ? "mb-2" : "mb-3"}>
+    <label className="block text-xs font-medium text-gray-600 mb-1">{label}</label>
+    <div className="flex gap-2">
+      <select
+        value={month || ''}
+        onChange={(e) => onChangeMonth(e.target.value ? parseInt(e.target.value) : null)}
+        className={`w-2/3 px-2 py-1.5 text-sm border rounded focus:ring-2 focus:outline-none ${error ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'} ${small ? 'py-1' : ''}`}
+      >
+        <option value="">Month</option>
+        {monthNames.map((m, i) => <option key={i} value={i + 1}>{m}</option>)}
+      </select>
+      <select
+        value={year || ''}
+        onChange={(e) => onChangeYear(e.target.value ? parseInt(e.target.value) : null)}
+        className={`w-1/3 px-2 py-1.5 text-sm border rounded focus:ring-2 focus:outline-none ${error ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'} ${small ? 'py-1' : ''}`}
+      >
+        <option value="">Year</option>
+        {Array.from({ length: 21 }, (_, i) => currentYear - 1 + i).map(y => <option key={y} value={y}>{y}</option>)}
+      </select>
+    </div>
+    {error && <div className="text-xs text-red-500 mt-1">{error}</div>}
+    {warning && <div className="text-xs text-orange-600 mt-1">{warning}</div>}
+  </div>
+));
+
 // DEFAULT VALUES
 const defaultBreedingInputs = {
   farmName: 'My Breeding Farm', location: 'Vietnam', farmCapacity: 5000, projectDuration: 10,
+  projectStartMonth: null, projectStartYear: null, kickoffMonth: null, kickoffYear: null,
   landCost: 0, landLife: 45, buildingCost: 346082, buildingLife: 20, machineryCost: 78649, machineryLife: 15, otherEquipmentCost: 25874, otherEquipmentLife: 15,
   bankLoanPercent: 0.70, interestRate: 0.11, loanTenure: 5,
   farrowingRateY1: 0.74, bornAliveY1: 10, preWeaningMortalityY1: 0.07, litterIndexY1: 2.57,
@@ -20,6 +75,7 @@ const defaultBreedingInputs = {
 
 const defaultFatteningInputs = {
   farmName: 'My Fattening Farm', location: 'Vietnam', farmCapacity: 8000, batchesPerYear: 2.25, projectDuration: 10,
+  projectStartMonth: null, projectStartYear: null, kickoffMonth: null, kickoffYear: null,
   landCost: 0, landLife: 40, buildingCost: 346082, buildingLife: 20, machineryCost: 78649, machineryLife: 15, utilitiesCost: 121, utilitiesLife: 15, otherEquipmentCost: 25753, otherEquipmentLife: 15,
   bankLoanPercent: 0.70, interestRate: 0.11, loanTenure: 5,
   weightIn: 6, targetABW: 120, mortality: 0.05, cullingRate: 0.007, fcr: 2.6, age: 160,
@@ -31,6 +87,7 @@ const defaultFatteningInputs = {
 
 const defaultIntegratedInputs = {
   farmName: 'My Integrated Farm', location: 'Vietnam', projectDuration: 10,
+  projectStartMonth: null, projectStartYear: null, kickoffMonth: null, kickoffYear: null,
   breedingSowCapacity: 5000,
   breedingLandCost: 0, breedingLandLife: 45, breedingBuildingCost: 346082, breedingBuildingLife: 20, breedingMachineryCost: 78649, breedingMachineryLife: 15, breedingOtherCost: 25874, breedingOtherLife: 15,
   farrowingRateY1: 0.74, bornAliveY1: 10, preWeaningMortalityY1: 0.07, litterIndexY1: 2.57,
@@ -50,26 +107,37 @@ const defaultIntegratedInputs = {
 
 // CALCULATION ENGINES
 const calculateBreedingProjection = (inputs) => {
-  const { farmCapacity, projectDuration, landCost, landLife, buildingCost, buildingLife, machineryCost, machineryLife, otherEquipmentCost, otherEquipmentLife, bankLoanPercent, interestRate, loanTenure, farrowingRateY1, bornAliveY1, preWeaningMortalityY1, litterIndexY1, farrowingRateY2, bornAliveY2, preWeaningMortalityY2, litterIndexY2, cullingRate, y1RampupFactor, giltCost, giltCostInc, feedCostPerKg, feedCostInc, feedConsumption, ahpCost, ahpCostInc, overheadCost, overheadCostInc, rentalFee, pigletPrice, culledSowPrice, avgCulledSowWeight, discountRate, taxRate, opexPercent, workingCapitalPercent } = inputs;
+  const { farmCapacity, projectDuration, projectStartMonth, projectStartYear, kickoffMonth, kickoffYear, landCost, landLife, buildingCost, buildingLife, machineryCost, machineryLife, otherEquipmentCost, otherEquipmentLife, bankLoanPercent, interestRate, loanTenure, farrowingRateY1, bornAliveY1, preWeaningMortalityY1, litterIndexY1, farrowingRateY2, bornAliveY2, preWeaningMortalityY2, litterIndexY2, cullingRate, y1RampupFactor, giltCost, giltCostInc, feedCostPerKg, feedCostInc, feedConsumption, ahpCost, ahpCostInc, overheadCost, overheadCostInc, rentalFee, pigletPrice, culledSowPrice, avgCulledSowWeight, discountRate, taxRate, opexPercent, workingCapitalPercent } = inputs;
 
   const totalCapex = landCost + buildingCost + machineryCost + otherEquipmentCost;
   const bankLoanAmount = totalCapex * bankLoanPercent;
   const equityAmount = totalCapex - bankLoanAmount;
-  const annualPrincipalPayment = bankLoanAmount / loanTenure;
   const annualDepreciation = (landLife > 0 ? landCost / landLife : 0) + (buildingLife > 0 ? buildingCost / buildingLife : 0) + (machineryLife > 0 ? machineryCost / machineryLife : 0) + (otherEquipmentLife > 0 ? otherEquipmentCost / otherEquipmentLife : 0);
 
   const weanPerSowY1 = farrowingRateY1 * bornAliveY1 * (1 - preWeaningMortalityY1) * litterIndexY1;
   const weanPerSowY2 = farrowingRateY2 * bornAliveY2 * (1 - preWeaningMortalityY2) * litterIndexY2;
 
+  // Construction Lag
+  let lagYears = 0;
+  if (kickoffMonth && kickoffYear && projectStartMonth && projectStartYear) {
+    const months = (projectStartYear - kickoffYear) * 12 + (projectStartMonth - kickoffMonth);
+    if (months > 0) lagYears = months / 12;
+  }
+
   const monthly = [];
   for (let m = 1; m <= 12; m++) {
     const rampup = (m / 12) * y1RampupFactor * 2;
     const avgSowPop = farmCapacity * rampup * (m / 12);
-    monthly.push({ month: m, avgSowPop, pigletsWeaned: avgSowPop * weanPerSowY1 / 12, culledSows: avgSowPop * cullingRate / 12 });
+    monthly.push({
+      month: m,
+      label: projectStartMonth && projectStartYear ? getMonthLabel(projectStartMonth, projectStartYear, m) : `Month ${m}`,
+      avgSowPop, pigletsWeaned: avgSowPop * weanPerSowY1 / 12, culledSows: avgSowPop * cullingRate / 12
+    });
   }
 
   const yearly = [];
-  let cumulativeFCF = 0;
+  let cumulativeFCF = lagYears > 0 ? -totalCapex : 0;
+
   for (let y = 1; y <= projectDuration; y++) {
     const isY1 = y === 1;
     const avgSowPop = isY1 ? monthly.reduce((s, m) => s + m.avgSowPop, 0) / 12 : farmCapacity;
@@ -81,26 +149,64 @@ const calculateBreedingProjection = (inputs) => {
     const totalCogs = culledSows * esc(giltCost, giltCostInc) / 1000 + avgSowPop * feedConsumption * 365 * esc(feedCostPerKg, feedCostInc) / 1000000 + avgSowPop * esc(ahpCost, ahpCostInc) / 1000 + avgSowPop * esc(overheadCost, overheadCostInc) / 1000 + rentalFee * 12 + annualDepreciation;
     const grossProfit = totalRevenue - totalCogs;
     const ebit = grossProfit - totalRevenue * opexPercent;
+
+    // Loan: Interest usually starts after CAPEX/drawdown. Simplified: Interest starts Y1.
+    const annualPrincipalPayment = bankLoanAmount / loanTenure;
     const remainingLoan = Math.max(0, bankLoanAmount - annualPrincipalPayment * (y - 1));
-    const interestExpense = remainingLoan * interestRate;
+    const interestExpense = y <= loanTenure ? remainingLoan * interestRate : 0;
+
     const ebt = ebit - interestExpense;
     const netProfit = ebt - (ebt > 0 ? ebt * taxRate : 0);
     const ebitda = ebit + annualDepreciation;
+
     const wcChange = y === 1 ? totalCogs * workingCapitalPercent : (totalCogs - (yearly[y - 2]?.totalCogs || 0)) * workingCapitalPercent;
-    const fcf = netProfit + annualDepreciation + interestExpense - wcChange - (y === 1 ? totalCapex : 0) + (y === projectDuration ? totalCapex * 0.1 : 0);
+
+    let fcf = netProfit + annualDepreciation + interestExpense - wcChange + (y === projectDuration ? totalCapex * 0.1 : 0);
+    // If no lag, standard model applies CAPEX in Y1
+    if (lagYears === 0 && y === 1) fcf -= totalCapex;
+
     cumulativeFCF += fcf;
-    yearly.push({ year: y, avgSowPop, pigletsWeaned, culledSows, totalRevenue, totalCogs, grossProfit, gpMargin: totalRevenue > 0 ? grossProfit / totalRevenue : 0, ebit, ebitda, interestExpense, netProfit, npMargin: totalRevenue > 0 ? netProfit / totalRevenue : 0, fcf, cumulativeFCF, pvFCF: fcf / Math.pow(1 + discountRate, y) });
+    yearly.push({
+      year: y,
+      label: projectStartYear ? getYearLabel(projectStartYear, y) : `Year ${y}`,
+      avgSowPop, pigletsWeaned, culledSows, totalRevenue, totalCogs, grossProfit, gpMargin: totalRevenue > 0 ? grossProfit / totalRevenue : 0, ebit, ebitda, interestExpense, netProfit, npMargin: totalRevenue > 0 ? netProfit / totalRevenue : 0, fcf, cumulativeFCF,
+      pvFCF: fcf / Math.pow(1 + discountRate, y + lagYears)
+    });
   }
 
-  const npv = yearly.reduce((s, y) => s + y.pvFCF, 0);
-  let irr = 0.1; for (let i = 0; i < 100; i++) { let npvC = 0, npvD = 0; yearly.forEach((y, idx) => { npvC += y.fcf / Math.pow(1 + irr, idx + 1); npvD -= (idx + 1) * y.fcf / Math.pow(1 + irr, idx + 2); }); if (Math.abs(npvD) < 0.0001) break; const nIrr = irr - npvC / npvD; if (Math.abs(nIrr - irr) < 0.0001) break; irr = nIrr; }
-  let payback = projectDuration; for (let i = 0; i < yearly.length; i++) { if (yearly[i].cumulativeFCF >= 0) { payback = i === 0 ? 1 : i + Math.abs(yearly[i - 1].cumulativeFCF) / yearly[i].fcf; break; } }
+  let npv = yearly.reduce((s, y) => s + y.pvFCF, 0);
+  if (lagYears > 0) npv -= totalCapex; // Initial outflow at T=0
 
-  return { capex: { totalCapex, bankLoanAmount, equityAmount, annualDepreciation }, kpis: { weanPerSowY1, weanPerSowY2 }, monthly, yearly, summary: { npv, irr: isNaN(irr) || !isFinite(irr) ? 0 : irr, paybackPeriod: payback, roiYear1: yearly[0] ? yearly[0].netProfit / totalCapex : 0, totalNetProfit: yearly.reduce((s, y) => s + y.netProfit, 0), totalRevenue: yearly.reduce((s, y) => s + y.totalRevenue, 0) } };
+  let irr = 0.1; for (let i = 0; i < 100; i++) { let npvC = 0, npvD = 0; yearly.forEach((y, idx) => { npvC += y.fcf / Math.pow(1 + irr, idx + 1); npvD -= (idx + 1) * y.fcf / Math.pow(1 + irr, idx + 2); }); if (Math.abs(npvD) < 0.0001) break; const nIrr = irr - npvC / npvD; if (Math.abs(nIrr - irr) < 0.0001) break; irr = nIrr; }
+
+  let payback = projectDuration;
+  // Payback logic: find when cumulativeFCF crosses 0.
+  // We need to account that yearly array might not start negative if lag>0 and big profit Y1? Unlikely.
+  // With lag > 0, cumulativeFCF starts at -TotalCapex.
+  // If lag == 0, cumulativeFCF starts at Y1 FCF (which includes -TotalCapex).
+  // So standard loop works.
+  for (let i = 0; i < yearly.length; i++) { if (yearly[i].cumulativeFCF >= 0) { payback = i === 0 ? 1 : i + Math.abs(yearly[i - 1].cumulativeFCF) / yearly[i].fcf; break; } }
+
+  let paybackDate = '';
+  if (kickoffMonth && kickoffYear) {
+    // Payback is relative to Kickoff Month. 
+    // payback is in Years from ops start? No, payback depends on cumulative cash flow stream.
+    // If lag>0, we spent money at T=0. Ops start at T=Lag.
+    // Payback periods calculated above are "Operational Years". e.g. 3.5 years means 3.5 years of OPERATIONS + Lag?
+    // Wait. cumulativeFCF tracks net cash position.
+    // If we find crossover at Year 4, it means we paid back at end of Year 4 of OPERATIONS.
+    // So Total Time = Lag + Payback Years.
+    const totalMonths = (lagYears * 12) + (payback * 12);
+    paybackDate = formatPaybackDate(kickoffMonth, kickoffYear, totalMonths / 12);
+  } else if (projectStartMonth && projectStartYear) {
+    paybackDate = formatPaybackDate(projectStartMonth, projectStartYear, payback);
+  }
+
+  return { capex: { totalCapex, bankLoanAmount, equityAmount, annualDepreciation }, kpis: { weanPerSowY1, weanPerSowY2 }, monthly, yearly, summary: { npv, irr: isNaN(irr) || !isFinite(irr) ? 0 : irr, paybackPeriod: payback, paybackDate, roiYear1: yearly[0] ? yearly[0].netProfit / totalCapex : 0, totalNetProfit: yearly.reduce((s, y) => s + y.netProfit, 0), totalRevenue: yearly.reduce((s, y) => s + y.totalRevenue, 0) } };
 };
 
 const calculateFatteningProjection = (inputs) => {
-  const { farmCapacity, batchesPerYear, projectDuration, landCost, landLife, buildingCost, buildingLife, machineryCost, machineryLife, utilitiesCost, utilitiesLife, otherEquipmentCost, otherEquipmentLife, bankLoanPercent, interestRate, loanTenure, weightIn, targetABW, mortality, cullingRate, fcr, y1MortalityAdj, y1FcrAdj, y1CapacityUtil, pigletCost, pigletCostInc, feedCostPerKg, feedCostInc, ahpPerKg, ahpCostInc, ovhPerKg, ovhCostInc, rentalFee, mainPigPrice, byProductPrice, cullingWeight, discountRate, taxRate, opexPercent, workingCapitalPercent } = inputs;
+  const { farmCapacity, batchesPerYear, projectDuration, projectStartMonth, projectStartYear, kickoffMonth, kickoffYear, landCost, landLife, buildingCost, buildingLife, machineryCost, machineryLife, utilitiesCost, utilitiesLife, otherEquipmentCost, otherEquipmentLife, bankLoanPercent, interestRate, loanTenure, weightIn, targetABW, mortality, cullingRate, fcr, y1MortalityAdj, y1FcrAdj, y1CapacityUtil, pigletCost, pigletCostInc, feedCostPerKg, feedCostInc, ahpPerKg, ahpCostInc, ovhPerKg, ovhCostInc, rentalFee, mainPigPrice, byProductPrice, cullingWeight, discountRate, taxRate, opexPercent, workingCapitalPercent } = inputs;
 
   const totalCapex = landCost + buildingCost + machineryCost + utilitiesCost + otherEquipmentCost;
   const bankLoanAmount = totalCapex * bankLoanPercent;
@@ -110,8 +216,15 @@ const calculateFatteningProjection = (inputs) => {
   const weightGain = targetABW - weightIn;
   const survivalRate = 1 - mortality - cullingRate;
 
+  // Construction Lag
+  let lagYears = 0;
+  if (kickoffMonth && kickoffYear && projectStartMonth && projectStartYear) {
+    const months = (projectStartYear - kickoffYear) * 12 + (projectStartMonth - kickoffMonth);
+    if (months > 0) lagYears = months / 12;
+  }
+
   const yearly = [];
-  let cumulativeFCF = 0;
+  let cumulativeFCF = lagYears > 0 ? -totalCapex : 0;
   for (let y = 1; y <= projectDuration; y++) {
     const isY1 = y === 1;
     const adjMort = isY1 ? mortality * y1MortalityAdj : mortality;
@@ -137,20 +250,39 @@ const calculateFatteningProjection = (inputs) => {
     const netProfit = ebt - (ebt > 0 ? ebt * taxRate : 0);
     const ebitda = ebit + annualDepreciation;
     const wcChange = y === 1 ? totalCogs * workingCapitalPercent : (totalCogs - (yearly[y - 2]?.totalCogs || 0)) * workingCapitalPercent;
-    const fcfVal = netProfit + annualDepreciation + interestExpense - wcChange - (y === 1 ? totalCapex : 0) + (y === projectDuration ? totalCapex * 0.1 : 0);
+
+    let fcfVal = netProfit + annualDepreciation + interestExpense - wcChange + (y === projectDuration ? totalCapex * 0.1 : 0);
+    if (lagYears === 0 && y === 1) fcfVal -= totalCapex;
+
     cumulativeFCF += fcfVal;
-    yearly.push({ year: y, pigsIn, mainPigsOut, totalRevenue, totalCogs, grossProfit, gpMargin: totalRevenue > 0 ? grossProfit / totalRevenue : 0, ebit, ebitda, interestExpense, netProfit, npMargin: totalRevenue > 0 ? netProfit / totalRevenue : 0, fcf: fcfVal, cumulativeFCF, pvFCF: fcfVal / Math.pow(1 + discountRate, y) });
+    yearly.push({
+      year: y,
+      label: projectStartYear ? getYearLabel(projectStartYear, y) : `Year ${y}`,
+      pigsIn, mainPigsOut, totalRevenue, totalCogs, grossProfit, gpMargin: totalRevenue > 0 ? grossProfit / totalRevenue : 0, ebit, ebitda, interestExpense, netProfit, npMargin: totalRevenue > 0 ? netProfit / totalRevenue : 0, fcf: fcfVal, cumulativeFCF,
+      pvFCF: fcfVal / Math.pow(1 + discountRate, y + lagYears)
+    });
   }
 
-  const npv = yearly.reduce((s, y) => s + y.pvFCF, 0);
+  let npv = yearly.reduce((s, y) => s + y.pvFCF, 0);
+  if (lagYears > 0) npv -= totalCapex;
+
   let irr = 0.1; for (let i = 0; i < 100; i++) { let npvC = 0, npvD = 0; yearly.forEach((y, idx) => { npvC += y.fcf / Math.pow(1 + irr, idx + 1); npvD -= (idx + 1) * y.fcf / Math.pow(1 + irr, idx + 2); }); if (Math.abs(npvD) < 0.0001) break; const nIrr = irr - npvC / npvD; if (Math.abs(nIrr - irr) < 0.0001) break; irr = nIrr; }
+
   let payback = projectDuration; for (let i = 0; i < yearly.length; i++) { if (yearly[i].cumulativeFCF >= 0) { payback = i === 0 ? 1 : i + Math.abs(yearly[i - 1].cumulativeFCF) / yearly[i].fcf; break; } }
 
-  return { capex: { totalCapex, bankLoanAmount, equityAmount, annualDepreciation }, kpis: { weightGain, survivalRate }, yearly, summary: { npv, irr: isNaN(irr) || !isFinite(irr) ? 0 : irr, paybackPeriod: payback, roiYear1: yearly[0] ? yearly[0].netProfit / totalCapex : 0, totalNetProfit: yearly.reduce((s, y) => s + y.netProfit, 0), totalRevenue: yearly.reduce((s, y) => s + y.totalRevenue, 0) } };
+  let paybackDate = '';
+  if (kickoffMonth && kickoffYear) {
+    const totalMonths = (lagYears * 12) + (payback * 12);
+    paybackDate = formatPaybackDate(kickoffMonth, kickoffYear, totalMonths / 12);
+  } else if (projectStartMonth && projectStartYear) {
+    paybackDate = formatPaybackDate(projectStartMonth, projectStartYear, payback);
+  }
+
+  return { capex: { totalCapex, bankLoanAmount, equityAmount, annualDepreciation }, kpis: { weightGain, survivalRate }, yearly, summary: { npv, irr: isNaN(irr) || !isFinite(irr) ? 0 : irr, paybackPeriod: payback, paybackDate, roiYear1: yearly[0] ? yearly[0].netProfit / totalCapex : 0, totalNetProfit: yearly.reduce((s, y) => s + y.netProfit, 0), totalRevenue: yearly.reduce((s, y) => s + y.totalRevenue, 0) } };
 };
 
 const calculateIntegratedProjection = (inputs) => {
-  const { projectDuration, breedingSowCapacity, breedingLandCost, breedingLandLife, breedingBuildingCost, breedingBuildingLife, breedingMachineryCost, breedingMachineryLife, breedingOtherCost, breedingOtherLife, farrowingRateY1, bornAliveY1, preWeaningMortalityY1, litterIndexY1, farrowingRateY2, bornAliveY2, preWeaningMortalityY2, litterIndexY2, sowCullingRate, y1RampupFactor, giltCost, giltCostInc, sowFeedCostPerKg, sowFeedCostInc, sowFeedConsumption, breedingAhpCost, breedingAhpCostInc, breedingOvhCost, breedingOvhCostInc, culledSowPrice, avgCulledSowWeight, fatteningCapacityMode, fatteningManualCapacity, fatteningLandCost, fatteningLandLife, fatteningBuildingCost, fatteningBuildingLife, fatteningMachineryCost, fatteningMachineryLife, fatteningUtilitiesCost, fatteningUtilitiesLife, fatteningOtherCost, fatteningOtherLife, weanWeight, targetABW, fatteningMortality, fatteningCullingRate, fatteningFcr, y1FatMortalityAdj, y1FatFcrAdj, fatteningFeedCostPerKg, fatteningFeedCostInc, fatteningAhpPerKg, fatteningAhpCostInc, fatteningOvhPerKg, fatteningOvhCostInc, finisherPrice, byProductPrice, cullingWeight, externalPigletPrice, bankLoanPercent, interestRate, loanTenure, discountRate, taxRate, opexPercent, workingCapitalPercent, breedingRentalFee, fatteningRentalFee } = inputs;
+  const { projectDuration, projectStartMonth, projectStartYear, kickoffMonth, kickoffYear, breedingSowCapacity, breedingLandCost, breedingLandLife, breedingBuildingCost, breedingBuildingLife, breedingMachineryCost, breedingMachineryLife, breedingOtherCost, breedingOtherLife, farrowingRateY1, bornAliveY1, preWeaningMortalityY1, litterIndexY1, farrowingRateY2, bornAliveY2, preWeaningMortalityY2, litterIndexY2, sowCullingRate, y1RampupFactor, giltCost, giltCostInc, sowFeedCostPerKg, sowFeedCostInc, sowFeedConsumption, breedingAhpCost, breedingAhpCostInc, breedingOvhCost, breedingOvhCostInc, culledSowPrice, avgCulledSowWeight, fatteningCapacityMode, fatteningManualCapacity, fatteningLandCost, fatteningLandLife, fatteningBuildingCost, fatteningBuildingLife, fatteningMachineryCost, fatteningMachineryLife, fatteningUtilitiesCost, fatteningUtilitiesLife, fatteningOtherCost, fatteningOtherLife, weanWeight, targetABW, fatteningMortality, fatteningCullingRate, fatteningFcr, y1FatMortalityAdj, y1FatFcrAdj, fatteningFeedCostPerKg, fatteningFeedCostInc, fatteningAhpPerKg, fatteningAhpCostInc, fatteningOvhPerKg, fatteningOvhCostInc, finisherPrice, byProductPrice, cullingWeight, externalPigletPrice, bankLoanPercent, interestRate, loanTenure, discountRate, taxRate, opexPercent, workingCapitalPercent, breedingRentalFee, fatteningRentalFee } = inputs;
 
   const weanPerSowY1 = farrowingRateY1 * bornAliveY1 * (1 - preWeaningMortalityY1) * litterIndexY1;
   const weanPerSowY2 = farrowingRateY2 * bornAliveY2 * (1 - preWeaningMortalityY2) * litterIndexY2;
@@ -167,8 +299,16 @@ const calculateIntegratedProjection = (inputs) => {
   const fatWeightGain = targetABW - weanWeight;
   const fatSurvivalRate = 1 - fatteningMortality - fatteningCullingRate;
 
+  // Construction Lag
+  let lagYears = 0;
+  if (kickoffMonth && kickoffYear && projectStartMonth && projectStartYear) {
+    const months = (projectStartYear - kickoffYear) * 12 + (projectStartMonth - kickoffMonth);
+    if (months > 0) lagYears = months / 12;
+  }
+
   const yearly = [];
-  let cumulativeFCF = 0;
+  let cumulativeFCF = lagYears > 0 ? -totalCapex : 0;
+
   for (let y = 1; y <= projectDuration; y++) {
     const isY1 = y === 1;
     const esc = (base, inc) => base * Math.pow(1 + inc, y - 1);
@@ -209,17 +349,36 @@ const calculateIntegratedProjection = (inputs) => {
     const netProfit = ebt - (ebt > 0 ? ebt * taxRate : 0);
     const ebitda = ebit + totalDepreciation;
     const wcChange = y === 1 ? totalCogs * workingCapitalPercent : (totalCogs - (yearly[y - 2]?.totalCogs || 0)) * workingCapitalPercent;
-    const fcf = netProfit + totalDepreciation + interestExpense - wcChange - (y === 1 ? totalCapex : 0) + (y === projectDuration ? totalCapex * 0.1 : 0);
-    cumulativeFCF += fcf;
 
-    yearly.push({ year: y, avgSowPop, pigletsWeaned, culledSows, pigletsToFattening: pigletsToFat, pigletsToExternalSale: pigletsExternal, finisherPigsOut, finisherWeight, breedingCogs, fatteningCogs, totalRevenue, totalCogs, grossProfit, gpMargin: totalRevenue > 0 ? grossProfit / totalRevenue : 0, ebit, ebitda, interestExpense, netProfit, npMargin: totalRevenue > 0 ? netProfit / totalRevenue : 0, depreciation: totalDepreciation, fcf, cumulativeFCF, pvFCF: fcf / Math.pow(1 + discountRate, y) });
+    let fcfVal = netProfit + totalDepreciation + interestExpense - wcChange + (y === projectDuration ? totalCapex * 0.1 : 0);
+    if (lagYears === 0 && y === 1) fcfVal -= totalCapex;
+
+    cumulativeFCF += fcfVal;
+
+    yearly.push({
+      year: y,
+      label: projectStartYear ? getYearLabel(projectStartYear, y) : `Year ${y}`,
+      avgSowPop, pigletsWeaned, culledSows, pigletsToFattening: pigletsToFat, pigletsToExternalSale: pigletsExternal, finisherPigsOut, finisherWeight, breedingCogs, fatteningCogs, totalRevenue, totalCogs, grossProfit, gpMargin: totalRevenue > 0 ? grossProfit / totalRevenue : 0, ebit, ebitda, interestExpense, netProfit, npMargin: totalRevenue > 0 ? netProfit / totalRevenue : 0, depreciation: totalDepreciation, fcf: fcfVal, cumulativeFCF,
+      pvFCF: fcfVal / Math.pow(1 + discountRate, y + lagYears)
+    });
   }
 
-  const npv = yearly.reduce((s, y) => s + y.pvFCF, 0);
+  let npv = yearly.reduce((s, y) => s + y.pvFCF, 0);
+  if (lagYears > 0) npv -= totalCapex;
+
   let irr = 0.1; for (let i = 0; i < 100; i++) { let npvC = 0, npvD = 0; yearly.forEach((y, idx) => { npvC += y.fcf / Math.pow(1 + irr, idx + 1); npvD -= (idx + 1) * y.fcf / Math.pow(1 + irr, idx + 2); }); if (Math.abs(npvD) < 0.0001) break; const nIrr = irr - npvC / npvD; if (Math.abs(nIrr - irr) < 0.0001) break; irr = nIrr; }
+
   let payback = projectDuration; for (let i = 0; i < yearly.length; i++) { if (yearly[i].cumulativeFCF >= 0) { payback = i === 0 ? 1 : i + Math.abs(yearly[i - 1].cumulativeFCF) / yearly[i].fcf; break; } }
 
-  return { capex: { totalCapex, breedingCapex, fatteningCapex, bankLoanAmount, equityAmount, totalDepreciation }, kpis: { weanPerSowY1, weanPerSowY2, fatWeightGain, fatSurvivalRate }, yearly, summary: { npv, irr: isNaN(irr) || !isFinite(irr) ? 0 : irr, paybackPeriod: payback, roiYear1: yearly[0] ? yearly[0].netProfit / totalCapex : 0, totalNetProfit: yearly.reduce((s, y) => s + y.netProfit, 0), totalRevenue: yearly.reduce((s, y) => s + y.totalRevenue, 0) } };
+  let paybackDate = '';
+  if (kickoffMonth && kickoffYear) {
+    const totalMonths = (lagYears * 12) + (payback * 12);
+    paybackDate = formatPaybackDate(kickoffMonth, kickoffYear, totalMonths / 12);
+  } else if (projectStartMonth && projectStartYear) {
+    paybackDate = formatPaybackDate(projectStartMonth, projectStartYear, payback);
+  }
+
+  return { capex: { totalCapex, breedingCapex, fatteningCapex, bankLoanAmount, equityAmount, totalDepreciation }, kpis: { weanPerSowY1, weanPerSowY2, fatWeightGain, fatSurvivalRate }, yearly, summary: { npv, irr: isNaN(irr) || !isFinite(irr) ? 0 : irr, paybackPeriod: payback, paybackDate, roiYear1: yearly[0] ? yearly[0].netProfit / totalCapex : 0, totalNetProfit: yearly.reduce((s, y) => s + y.netProfit, 0), totalRevenue: yearly.reduce((s, y) => s + y.totalRevenue, 0) } };
 };
 
 // UTILITIES
@@ -324,7 +483,7 @@ function FarmFSCalculator() {
   }, []);
 
   const saveScenario = () => { if (!scenarioName.trim()) return alert('Enter scenario name'); const n = { id: Date.now(), name: scenarioName, farmType, inputs: farmType === 'fattening' ? { ...fatteningInputs } : farmType === 'integrated' ? { ...integratedInputs } : { ...breedingInputs }, summary: projection.summary, createdAt: new Date().toISOString() }; const u = [...savedScenarios, n]; setSavedScenarios(u); saveToStorage(u); setScenarioName(''); alert(`Saved!`); };
-  const loadScenario = (s) => { setFarmType(s.farmType); if (s.farmType === 'fattening') setFatteningInputs(s.inputs); else if (s.farmType === 'integrated') setIntegratedInputs(s.inputs); else setBreedingInputs(s.inputs); setActiveTab('entry'); };
+  const loadScenario = (s) => { setFarmType(s.farmType); if (s.farmType === 'fattening') setFatteningInputs({ ...defaultFatteningInputs, ...s.inputs }); else if (s.farmType === 'integrated') setIntegratedInputs({ ...defaultIntegratedInputs, ...s.inputs }); else setBreedingInputs({ ...defaultBreedingInputs, ...s.inputs }); setActiveTab('entry'); };
   const deleteScenario = (id) => { if (confirm('Delete?')) { const u = savedScenarios.filter(s => s.id !== id); setSavedScenarios(u); saveToStorage(u); } };
   const resetToDefaults = () => { if (confirm('Reset?')) { if (farmType === 'fattening') setFatteningInputs(defaultFatteningInputs); else if (farmType === 'integrated') setIntegratedInputs(defaultIntegratedInputs); else setBreedingInputs(defaultBreedingInputs); } };
   const toggleLanguage = () => setLanguage(prev => prev === 'en' ? 'id' : 'en');
@@ -336,168 +495,197 @@ function FarmFSCalculator() {
 
   // DATA ENTRY TAB - render memoized JSX directly based on farmType
 
-  const BreedingDataEntry = useMemo(() => (
-    <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
-      <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
-        <SectionHeader title={`A. ${t.sections.farmInfo}`} icon={Factory} expanded={expandedSections.farm} onToggle={() => toggleSection('farm')} />
-        {expandedSections.farm && (<div className="p-4"><InputField label={t.fields.farmName} value={breedingInputs.farmName} onChange={(v) => updateBreedingInput('farmName', v)} type="text" /><InputField label={t.fields.location} value={breedingInputs.location} onChange={(v) => updateBreedingInput('location', v)} type="text" /><InputField label={t.fields.farmCapacity} value={breedingInputs.farmCapacity} onChange={(v) => updateBreedingInput('farmCapacity', v)} suffix={t.units.head} /><InputField label={t.fields.projectDuration} value={breedingInputs.projectDuration} onChange={(v) => updateBreedingInput('projectDuration', v)} suffix={t.units.years} /></div>)}
-      </div>
-      <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
-        <SectionHeader title={`B. ${t.sections.capex}`} icon={Calculator} expanded={expandedSections.capex} onToggle={() => toggleSection('capex')} color="orange" />
-        {expandedSections.capex && (<div className="p-4"><div className="grid grid-cols-2 gap-2"><InputField label={t.fields.land} value={breedingInputs.landCost} onChange={(v) => updateBreedingInput('landCost', v)} /><InputField label={t.fields.life} value={breedingInputs.landLife} onChange={(v) => updateBreedingInput('landLife', v)} suffix={t.units.year} /><InputField label={t.fields.building} value={breedingInputs.buildingCost} onChange={(v) => updateBreedingInput('buildingCost', v)} /><InputField label={t.fields.life} value={breedingInputs.buildingLife} onChange={(v) => updateBreedingInput('buildingLife', v)} suffix={t.units.year} /><InputField label={t.fields.machinery} value={breedingInputs.machineryCost} onChange={(v) => updateBreedingInput('machineryCost', v)} /><InputField label={t.fields.life} value={breedingInputs.machineryLife} onChange={(v) => updateBreedingInput('machineryLife', v)} suffix={t.units.year} /></div><div className="mt-3 p-2 bg-emerald-50 rounded text-sm font-semibold text-emerald-800">{t.fields.totalCapex} {formatNumber(projection.capex.totalCapex)} {t.units.million}</div></div>)}
-      </div>
-      <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
-        <SectionHeader title={t.sections.financing} icon={PiggyBank} expanded={expandedSections.financing} onToggle={() => toggleSection('financing')} color="purple" />
-        {expandedSections.financing && (<div className="p-4"><InputField label={t.fields.bankLoan} value={breedingInputs.bankLoanPercent * 100} onChange={(v) => updateBreedingInput('bankLoanPercent', v / 100)} suffix="%" /><InputField label={t.fields.interestRate} value={breedingInputs.interestRate * 100} onChange={(v) => updateBreedingInput('interestRate', v / 100)} suffix="%" /><InputField label={t.fields.loanTenure} value={breedingInputs.loanTenure} onChange={(v) => updateBreedingInput('loanTenure', v)} suffix={t.units.years} /></div>)}
-      </div>
-      <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
-        <SectionHeader title={`C. ${t.sections.production}`} icon={TrendingUp} expanded={expandedSections.production} onToggle={() => toggleSection('production')} color="blue" />
-        {expandedSections.production && (<div className="p-4"><div className="grid grid-cols-2 gap-3"><div className="p-2 bg-amber-50 rounded"><div className="text-xs font-semibold mb-2">{t.fields.year1}</div><InputField label={t.fields.farrowRate} value={breedingInputs.farrowingRateY1 * 100} onChange={(v) => updateBreedingInput('farrowingRateY1', v / 100)} suffix="%" small /><InputField label={t.fields.bornAlive} value={breedingInputs.bornAliveY1} onChange={(v) => updateBreedingInput('bornAliveY1', v)} small /><InputField label={t.fields.preWeanMort} value={breedingInputs.preWeaningMortalityY1 * 100} onChange={(v) => updateBreedingInput('preWeaningMortalityY1', v / 100)} suffix="%" small /></div><div className="p-2 bg-emerald-50 rounded"><div className="text-xs font-semibold mb-2">{t.fields.year2Plus}</div><InputField label={t.fields.farrowRate} value={breedingInputs.farrowingRateY2 * 100} onChange={(v) => updateBreedingInput('farrowingRateY2', v / 100)} suffix="%" small /><InputField label={t.fields.bornAlive} value={breedingInputs.bornAliveY2} onChange={(v) => updateBreedingInput('bornAliveY2', v)} small /><InputField label={t.fields.preWeanMort} value={breedingInputs.preWeaningMortalityY2 * 100} onChange={(v) => updateBreedingInput('preWeaningMortalityY2', v / 100)} suffix="%" small /></div></div></div>)}
-      </div>
-      <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
-        <SectionHeader title={`D. ${t.sections.costs}`} expanded={expandedSections.costs} onToggle={() => toggleSection('costs')} color="orange" />
-        {expandedSections.costs && (<div className="p-4"><div className="grid grid-cols-2 gap-2"><InputField label={t.fields.gilt} value={breedingInputs.giltCost} onChange={(v) => updateBreedingInput('giltCost', v)} /><InputField label={t.fields.feed} value={breedingInputs.feedCostPerKg} onChange={(v) => updateBreedingInput('feedCostPerKg', v)} /></div><InputField label={t.fields.feedConsumption} value={breedingInputs.feedConsumption} onChange={(v) => updateBreedingInput('feedConsumption', v)} step={0.01} /></div>)}
-      </div>
-      <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
-        <SectionHeader title={`E. ${t.sections.prices}`} expanded={expandedSections.prices} onToggle={() => toggleSection('prices')} color="purple" />
-        {expandedSections.prices && (<div className="p-4"><InputField label={t.fields.pigletPrice} value={breedingInputs.pigletPrice} onChange={(v) => updateBreedingInput('pigletPrice', v)} /><InputField label={t.fields.culledSow} value={breedingInputs.culledSowPrice} onChange={(v) => updateBreedingInput('culledSowPrice', v)} /><div className="grid grid-cols-2 gap-2 mt-2"><InputField label={t.fields.discountRate} value={breedingInputs.discountRate * 100} onChange={(v) => updateBreedingInput('discountRate', v / 100)} suffix="%" /><InputField label={t.fields.taxRate} value={breedingInputs.taxRate * 100} onChange={(v) => updateBreedingInput('taxRate', v / 100)} suffix="%" /></div></div>)}
-      </div>
-    </div>
-  ), [breedingInputs, expandedSections, projection.capex.totalCapex, updateBreedingInput, toggleSection, t]);
-
-  const FatteningDataEntry = useMemo(() => (
-    <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
-      <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
-        <SectionHeader title={`A. ${t.sections.farmInfo}`} icon={Factory} expanded={expandedSections.farm} onToggle={() => toggleSection('farm')} color="orange" />
-        {expandedSections.farm && (<div className="p-4"><InputField label={t.fields.farmName} value={fatteningInputs.farmName} onChange={(v) => updateFatteningInput('farmName', v)} type="text" /><InputField label={t.fields.location} value={fatteningInputs.location} onChange={(v) => updateFatteningInput('location', v)} type="text" /><InputField label={t.fields.capacityHeads} value={fatteningInputs.farmCapacity} onChange={(v) => updateFatteningInput('farmCapacity', v)} suffix={t.units.head} /><InputField label={t.fields.batchesPerYear} value={fatteningInputs.batchesPerYear} onChange={(v) => updateFatteningInput('batchesPerYear', v)} step={0.1} /><InputField label={t.fields.projectDuration} value={fatteningInputs.projectDuration} onChange={(v) => updateFatteningInput('projectDuration', v)} suffix={t.units.years} /></div>)}
-      </div>
-      <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
-        <SectionHeader title={`B. ${t.sections.capex}`} icon={Calculator} expanded={expandedSections.capex} onToggle={() => toggleSection('capex')} color="orange" />
-        {expandedSections.capex && (<div className="p-4"><div className="grid grid-cols-2 gap-2"><InputField label={t.fields.land} value={fatteningInputs.landCost} onChange={(v) => updateFatteningInput('landCost', v)} /><InputField label={t.fields.life} value={fatteningInputs.landLife} onChange={(v) => updateFatteningInput('landLife', v)} suffix={t.units.year} /><InputField label={t.fields.building} value={fatteningInputs.buildingCost} onChange={(v) => updateFatteningInput('buildingCost', v)} /><InputField label={t.fields.life} value={fatteningInputs.buildingLife} onChange={(v) => updateFatteningInput('buildingLife', v)} suffix={t.units.year} /><InputField label={t.fields.machinery} value={fatteningInputs.machineryCost} onChange={(v) => updateFatteningInput('machineryCost', v)} /><InputField label={t.fields.life} value={fatteningInputs.machineryLife} onChange={(v) => updateFatteningInput('machineryLife', v)} suffix={t.units.year} /></div><div className="mt-3 p-2 bg-orange-50 rounded text-sm font-semibold text-orange-800">{t.fields.totalCapex} {formatNumber(projection.capex.totalCapex)} {t.units.million}</div></div>)}
-      </div>
-      <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
-        <SectionHeader title={t.sections.financing} icon={PiggyBank} expanded={expandedSections.financing} onToggle={() => toggleSection('financing')} color="purple" />
-        {expandedSections.financing && (<div className="p-4"><InputField label={t.fields.bankLoan} value={fatteningInputs.bankLoanPercent * 100} onChange={(v) => updateFatteningInput('bankLoanPercent', v / 100)} suffix="%" /><InputField label={t.fields.interestRate} value={fatteningInputs.interestRate * 100} onChange={(v) => updateFatteningInput('interestRate', v / 100)} suffix="%" /><InputField label={t.fields.loanTenure} value={fatteningInputs.loanTenure} onChange={(v) => updateFatteningInput('loanTenure', v)} suffix={t.units.years} /></div>)}
-      </div>
-      <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
-        <SectionHeader title={`C. ${t.sections.production}`} icon={TrendingUp} expanded={expandedSections.production} onToggle={() => toggleSection('production')} color="blue" />
-        {expandedSections.production && (<div className="p-4"><div className="grid grid-cols-2 gap-2"><InputField label={t.fields.weightIn} value={fatteningInputs.weightIn} onChange={(v) => updateFatteningInput('weightIn', v)} /><InputField label={t.fields.targetABW} value={fatteningInputs.targetABW} onChange={(v) => updateFatteningInput('targetABW', v)} /><InputField label={t.fields.mortality} value={fatteningInputs.mortality * 100} onChange={(v) => updateFatteningInput('mortality', v / 100)} suffix="%" /><InputField label={t.fields.fcr} value={fatteningInputs.fcr} onChange={(v) => updateFatteningInput('fcr', v)} step={0.1} /></div></div>)}
-      </div>
-      <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
-        <SectionHeader title={`D. ${t.sections.costs}`} expanded={expandedSections.costs} onToggle={() => toggleSection('costs')} color="orange" />
-        {expandedSections.costs && (<div className="p-4"><div className="grid grid-cols-2 gap-2"><InputField label={t.fields.piglet} value={fatteningInputs.pigletCost} onChange={(v) => updateFatteningInput('pigletCost', v)} /><InputField label={t.fields.feed} value={fatteningInputs.feedCostPerKg} onChange={(v) => updateFatteningInput('feedCostPerKg', v)} /></div></div>)}
-      </div>
-      <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
-        <SectionHeader title="E. PRICES & OTHER" expanded={expandedSections.prices} onToggle={() => toggleSection('prices')} color="purple" />
-        {expandedSections.prices && (<div className="p-4"><InputField label="Main Pig Price (IDR/kg)" value={fatteningInputs.mainPigPrice} onChange={(v) => updateFatteningInput('mainPigPrice', v)} /><div className="grid grid-cols-2 gap-2 mt-2"><InputField label="Discount Rate" value={fatteningInputs.discountRate * 100} onChange={(v) => updateFatteningInput('discountRate', v / 100)} suffix="%" /><InputField label="Tax Rate" value={fatteningInputs.taxRate * 100} onChange={(v) => updateFatteningInput('taxRate', v / 100)} suffix="%" /></div></div>)}
-      </div>
-    </div>
-  ), [fatteningInputs, expandedSections, projection.capex.totalCapex, updateFatteningInput, toggleSection]);
-
-  const IntegratedDataEntry = useMemo(() => (
-    <div className="space-y-4">
-      <div className="bg-white rounded-xl p-4 border border-indigo-200 shadow-sm">
-        <div className="flex items-center justify-between flex-wrap gap-4">
-          <div className="flex items-center gap-2">
-            <div className="bg-indigo-100 p-2 rounded-lg"><Factory className="text-indigo-600" size={20} /></div>
-            <div><div className="font-bold text-gray-800">{t.sections.integratedModel}</div></div>
-          </div>
-          <div className="flex items-center gap-2 text-sm bg-gray-50 px-3 py-2 rounded-lg border border-gray-100">
-            <div className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-emerald-500"></span> {t.sections.breeding}</div>
-            <ArrowRight size={14} className="text-gray-400" />
-            <div className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-orange-500"></span> {t.sections.piglet}</div>
-            <ArrowRight size={14} className="text-gray-400" />
-            <div className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-blue-500"></span> {t.sections.fattening}</div>
-          </div>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+  const BreedingDataEntry = useMemo(() => {
+    const valid = getConstructionValidation(breedingInputs.kickoffMonth, breedingInputs.kickoffYear, breedingInputs.projectStartMonth, breedingInputs.projectStartYear, t);
+    return (
+      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
         <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
-          <SectionHeader title={t.sections.farmInfo} icon={Factory} expanded={expandedSections.farm} onToggle={() => toggleSection('farm')} color="indigo" />
+          <SectionHeader title={`A. ${t.sections.farmInfo}`} icon={Factory} expanded={expandedSections.farm} onToggle={() => toggleSection('farm')} />
           {expandedSections.farm && (<div className="p-4">
-            <InputField label={t.fields.farmName} value={integratedInputs.farmName} onChange={(v) => updateIntegratedInput('farmName', v)} type="text" />
-            <InputField label={t.fields.location} value={integratedInputs.location} onChange={(v) => updateIntegratedInput('location', v)} type="text" />
-            <InputField label={t.fields.projectDuration} value={integratedInputs.projectDuration} onChange={(v) => updateIntegratedInput('projectDuration', v)} suffix={t.units.years} />
-            <div className="mt-4 grid grid-cols-2 gap-4">
-              <div className="p-3 bg-emerald-50 rounded-lg"><div className="text-xs font-semibold text-emerald-700 mb-2">{t.sections.breeding.toUpperCase()}</div><InputField label={t.fields.sowCapacity} value={integratedInputs.breedingSowCapacity} onChange={(v) => updateIntegratedInput('breedingSowCapacity', v)} suffix={t.units.sows} small /></div>
-              <div className="p-3 bg-orange-50 rounded-lg">
-                <div className="text-xs font-semibold text-orange-700 mb-2">{t.sections.fattening.toUpperCase()}</div>
-                <label className="flex items-center gap-2 text-xs"><input type="radio" checked={integratedInputs.fatteningCapacityMode === 'auto'} onChange={() => updateIntegratedInput('fatteningCapacityMode', 'auto')} />{t.fields.autoMatch}</label>
-                <label className="flex items-center gap-2 text-xs mt-1"><input type="radio" checked={integratedInputs.fatteningCapacityMode === 'manual'} onChange={() => updateIntegratedInput('fatteningCapacityMode', 'manual')} />{t.fields.manual}</label>
-                {integratedInputs.fatteningCapacityMode === 'manual' && <InputField label={t.fields.capacityHeadsYear} value={integratedInputs.fatteningManualCapacity} onChange={(v) => updateIntegratedInput('fatteningManualCapacity', v)} small />}
-              </div>
-            </div>
+            <InputField label={t.fields.farmName} value={breedingInputs.farmName} onChange={(v) => updateBreedingInput('farmName', v)} type="text" />
+            <InputField label={t.fields.location} value={breedingInputs.location} onChange={(v) => updateBreedingInput('location', v)} type="text" />
+            <DateInput label={t.fields.projectKickoff} month={breedingInputs.kickoffMonth} year={breedingInputs.kickoffYear} onChangeMonth={(v) => updateBreedingInput('kickoffMonth', v)} onChangeYear={(v) => updateBreedingInput('kickoffYear', v)} error={valid?.error} />
+            {valid?.months !== undefined && !valid.error && <div className="mb-3 text-xs text-blue-600 bg-blue-50 p-2 rounded"><strong>{t.fields.constructionPeriod}:</strong> {valid.label}</div>}
+            <DateInput label={t.fields.firstGiltInDate} month={breedingInputs.projectStartMonth} year={breedingInputs.projectStartYear} onChangeMonth={(v) => updateBreedingInput('projectStartMonth', v)} onChangeYear={(v) => updateBreedingInput('projectStartYear', v)} />
+            <InputField label={t.fields.farmCapacity} value={breedingInputs.farmCapacity} onChange={(v) => updateBreedingInput('farmCapacity', v)} suffix={t.units.head} />
+            <InputField label={t.fields.projectDuration} value={breedingInputs.projectDuration} onChange={(v) => updateBreedingInput('projectDuration', v)} suffix={t.units.years} />
           </div>)}
+        </div>
+        <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
+          <SectionHeader title={`B. ${t.sections.capex}`} icon={Calculator} expanded={expandedSections.capex} onToggle={() => toggleSection('capex')} color="orange" />
+          {expandedSections.capex && (<div className="p-4"><div className="grid grid-cols-2 gap-2"><InputField label={t.fields.land} value={breedingInputs.landCost} onChange={(v) => updateBreedingInput('landCost', v)} /><InputField label={t.fields.life} value={breedingInputs.landLife} onChange={(v) => updateBreedingInput('landLife', v)} suffix={t.units.year} /><InputField label={t.fields.building} value={breedingInputs.buildingCost} onChange={(v) => updateBreedingInput('buildingCost', v)} /><InputField label={t.fields.life} value={breedingInputs.buildingLife} onChange={(v) => updateBreedingInput('buildingLife', v)} suffix={t.units.year} /><InputField label={t.fields.machinery} value={breedingInputs.machineryCost} onChange={(v) => updateBreedingInput('machineryCost', v)} /><InputField label={t.fields.life} value={breedingInputs.machineryLife} onChange={(v) => updateBreedingInput('machineryLife', v)} suffix={t.units.year} /></div><div className="mt-3 p-2 bg-emerald-50 rounded text-sm font-semibold text-emerald-800">{t.fields.totalCapex} {formatNumber(projection.capex.totalCapex)} {t.units.million}</div></div>)}
         </div>
         <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
           <SectionHeader title={t.sections.financing} icon={PiggyBank} expanded={expandedSections.financing} onToggle={() => toggleSection('financing')} color="purple" />
-          {expandedSections.financing && (<div className="p-4">
-            <InputField label={t.fields.bankLoan} value={integratedInputs.bankLoanPercent * 100} onChange={(v) => updateIntegratedInput('bankLoanPercent', v / 100)} suffix="%" />
-            <InputField label={t.fields.interestRate} value={integratedInputs.interestRate * 100} onChange={(v) => updateIntegratedInput('interestRate', v / 100)} suffix="%" />
-            <InputField label={t.fields.loanTenure} value={integratedInputs.loanTenure} onChange={(v) => updateIntegratedInput('loanTenure', v)} suffix={t.units.years} />
-            <div className="mt-3 p-3 bg-indigo-50 rounded-lg text-xs">
-              <div className="font-semibold text-indigo-800 mb-2">{t.sections.investmentSummary}</div>
-              <div className="grid grid-cols-2 gap-1">
-                <div>{t.sections.breeding} CAPEX:</div><div className="text-right">IDR {formatNumber(projection.capex.breedingCapex)} M</div>
-                <div>{t.sections.fattening} CAPEX:</div><div className="text-right">IDR {formatNumber(projection.capex.fatteningCapex)} M</div>
-                <div className="font-bold">Total CAPEX:</div><div className="text-right font-bold">IDR {formatNumber(projection.capex.totalCapex)} M</div>
-              </div>
-            </div>
+          {expandedSections.financing && (<div className="p-4"><InputField label={t.fields.bankLoan} value={breedingInputs.bankLoanPercent * 100} onChange={(v) => updateBreedingInput('bankLoanPercent', v / 100)} suffix="%" /><InputField label={t.fields.interestRate} value={breedingInputs.interestRate * 100} onChange={(v) => updateBreedingInput('interestRate', v / 100)} suffix="%" /><InputField label={t.fields.loanTenure} value={breedingInputs.loanTenure} onChange={(v) => updateBreedingInput('loanTenure', v)} suffix={t.units.years} /></div>)}
+        </div>
+        <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
+          <SectionHeader title={`C. ${t.sections.production}`} icon={TrendingUp} expanded={expandedSections.production} onToggle={() => toggleSection('production')} color="blue" />
+          {expandedSections.production && (<div className="p-4"><div className="grid grid-cols-2 gap-3"><div className="p-2 bg-amber-50 rounded"><div className="text-xs font-semibold mb-2">{t.fields.year1}</div><InputField label={t.fields.farrowRate} value={breedingInputs.farrowingRateY1 * 100} onChange={(v) => updateBreedingInput('farrowingRateY1', v / 100)} suffix="%" small /><InputField label={t.fields.bornAlive} value={breedingInputs.bornAliveY1} onChange={(v) => updateBreedingInput('bornAliveY1', v)} small /><InputField label={t.fields.preWeanMort} value={breedingInputs.preWeaningMortalityY1 * 100} onChange={(v) => updateBreedingInput('preWeaningMortalityY1', v / 100)} suffix="%" small /></div><div className="p-2 bg-emerald-50 rounded"><div className="text-xs font-semibold mb-2">{t.fields.year2Plus}</div><InputField label={t.fields.farrowRate} value={breedingInputs.farrowingRateY2 * 100} onChange={(v) => updateBreedingInput('farrowingRateY2', v / 100)} suffix="%" small /><InputField label={t.fields.bornAlive} value={breedingInputs.bornAliveY2} onChange={(v) => updateBreedingInput('bornAliveY2', v)} small /><InputField label={t.fields.preWeanMort} value={breedingInputs.preWeaningMortalityY2 * 100} onChange={(v) => updateBreedingInput('preWeaningMortalityY2', v / 100)} suffix="%" small /></div></div></div>)}
+        </div>
+        <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
+          <SectionHeader title={`D. ${t.sections.costs}`} expanded={expandedSections.costs} onToggle={() => toggleSection('costs')} color="orange" />
+          {expandedSections.costs && (<div className="p-4"><div className="grid grid-cols-2 gap-2"><InputField label={t.fields.gilt} value={breedingInputs.giltCost} onChange={(v) => updateBreedingInput('giltCost', v)} /><InputField label={t.fields.feed} value={breedingInputs.feedCostPerKg} onChange={(v) => updateBreedingInput('feedCostPerKg', v)} /></div><InputField label={t.fields.feedConsumption} value={breedingInputs.feedConsumption} onChange={(v) => updateBreedingInput('feedConsumption', v)} step={0.01} /></div>)}
+        </div>
+        <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
+          <SectionHeader title={`E. ${t.sections.prices}`} expanded={expandedSections.prices} onToggle={() => toggleSection('prices')} color="purple" />
+          {expandedSections.prices && (<div className="p-4"><InputField label={t.fields.pigletPrice} value={breedingInputs.pigletPrice} onChange={(v) => updateBreedingInput('pigletPrice', v)} /><InputField label={t.fields.culledSow} value={breedingInputs.culledSowPrice} onChange={(v) => updateBreedingInput('culledSowPrice', v)} /><div className="grid grid-cols-2 gap-2 mt-2"><InputField label={t.fields.discountRate} value={breedingInputs.discountRate * 100} onChange={(v) => updateBreedingInput('discountRate', v / 100)} suffix="%" /><InputField label={t.fields.taxRate} value={breedingInputs.taxRate * 100} onChange={(v) => updateBreedingInput('taxRate', v / 100)} suffix="%" /></div></div>)}
+        </div>
+      </div>
+    );
+  }, [breedingInputs, expandedSections, projection.capex.totalCapex, updateBreedingInput, toggleSection, t]);
+
+  const FatteningDataEntry = useMemo(() => {
+    const valid = getConstructionValidation(fatteningInputs.kickoffMonth, fatteningInputs.kickoffYear, fatteningInputs.projectStartMonth, fatteningInputs.projectStartYear, t);
+    return (
+      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
+        <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
+          <SectionHeader title={`A. ${t.sections.farmInfo}`} icon={Factory} expanded={expandedSections.farm} onToggle={() => toggleSection('farm')} color="orange" />
+          {expandedSections.farm && (<div className="p-4">
+            <InputField label={t.fields.farmName} value={fatteningInputs.farmName} onChange={(v) => updateFatteningInput('farmName', v)} type="text" />
+            <InputField label={t.fields.location} value={fatteningInputs.location} onChange={(v) => updateFatteningInput('location', v)} type="text" />
+            <DateInput label={t.fields.projectKickoff} month={fatteningInputs.kickoffMonth} year={fatteningInputs.kickoffYear} onChangeMonth={(v) => updateFatteningInput('kickoffMonth', v)} onChangeYear={(v) => updateFatteningInput('kickoffYear', v)} error={valid?.error} />
+            {valid?.months !== undefined && !valid.error && <div className="mb-3 text-xs text-blue-600 bg-blue-50 p-2 rounded"><strong>{t.fields.constructionPeriod}:</strong> {valid.label}</div>}
+            <DateInput label={t.fields.firstPigInDate} month={fatteningInputs.projectStartMonth} year={fatteningInputs.projectStartYear} onChangeMonth={(v) => updateFatteningInput('projectStartMonth', v)} onChangeYear={(v) => updateFatteningInput('projectStartYear', v)} />
+            <InputField label={t.fields.capacityHeads} value={fatteningInputs.farmCapacity} onChange={(v) => updateFatteningInput('farmCapacity', v)} suffix={t.units.head} />
+            <InputField label={t.fields.batchesPerYear} value={fatteningInputs.batchesPerYear} onChange={(v) => updateFatteningInput('batchesPerYear', v)} step={0.1} />
+            <InputField label={t.fields.projectDuration} value={fatteningInputs.projectDuration} onChange={(v) => updateFatteningInput('projectDuration', v)} suffix={t.units.years} />
           </div>)}
         </div>
-      </div>
-
-      <div className="bg-gradient-to-r from-emerald-50 to-emerald-100 rounded-xl p-4 border border-emerald-200">
-        <h3 className="font-bold text-emerald-800 mb-4 flex items-center gap-2"><ArrowRight className="text-emerald-600" size={20} /> {t.sections.breedingParameters}</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="bg-white rounded-lg p-3">
-            <div className="text-xs font-semibold text-gray-600 mb-2">{t.sections.capex}</div>
-            <InputField label={t.fields.building} value={integratedInputs.breedingBuildingCost} onChange={(v) => updateIntegratedInput('breedingBuildingCost', v)} small />
-            <InputField label={t.fields.machinery} value={integratedInputs.breedingMachineryCost} onChange={(v) => updateIntegratedInput('breedingMachineryCost', v)} small />
-          </div>
-          <div className="bg-white rounded-lg p-3">
-            <div className="text-xs font-semibold text-gray-600 mb-2">{t.sections.kpis}</div>
-            <InputField label={`${t.fields.farrowRate} ${t.fields.year2Plus}`} value={integratedInputs.farrowingRateY2 * 100} onChange={(v) => updateIntegratedInput('farrowingRateY2', v / 100)} suffix="%" small />
-            <InputField label={`${t.fields.bornAlive} ${t.fields.year2Plus}`} value={integratedInputs.bornAliveY2} onChange={(v) => updateIntegratedInput('bornAliveY2', v)} small />
-            <div className="text-xs mt-2 p-2 bg-gray-50 rounded">W/S/Y: {formatNumber(projection.kpis.weanPerSowY2, 2)}</div>
-          </div>
-          <div className="bg-white rounded-lg p-3">
-            <div className="text-xs font-semibold text-gray-600 mb-2">{t.sections.costs}</div>
-            <InputField label={t.fields.gilt} value={integratedInputs.giltCost} onChange={(v) => updateIntegratedInput('giltCost', v)} small />
-            <InputField label={t.fields.feed} value={integratedInputs.sowFeedCostPerKg} onChange={(v) => updateIntegratedInput('sowFeedCostPerKg', v)} small />
-          </div>
+        <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
+          <SectionHeader title={`B. ${t.sections.capex}`} icon={Calculator} expanded={expandedSections.capex} onToggle={() => toggleSection('capex')} color="orange" />
+          {expandedSections.capex && (<div className="p-4"><div className="grid grid-cols-2 gap-2"><InputField label={t.fields.land} value={fatteningInputs.landCost} onChange={(v) => updateFatteningInput('landCost', v)} /><InputField label={t.fields.life} value={fatteningInputs.landLife} onChange={(v) => updateFatteningInput('landLife', v)} suffix={t.units.year} /><InputField label={t.fields.building} value={fatteningInputs.buildingCost} onChange={(v) => updateFatteningInput('buildingCost', v)} /><InputField label={t.fields.life} value={fatteningInputs.buildingLife} onChange={(v) => updateFatteningInput('buildingLife', v)} suffix={t.units.year} /><InputField label={t.fields.machinery} value={fatteningInputs.machineryCost} onChange={(v) => updateFatteningInput('machineryCost', v)} /><InputField label={t.fields.life} value={fatteningInputs.machineryLife} onChange={(v) => updateFatteningInput('machineryLife', v)} suffix={t.units.year} /></div><div className="mt-3 p-2 bg-orange-50 rounded text-sm font-semibold text-orange-800">{t.fields.totalCapex} {formatNumber(projection.capex.totalCapex)} {t.units.million}</div></div>)}
+        </div>
+        <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
+          <SectionHeader title={t.sections.financing} icon={PiggyBank} expanded={expandedSections.financing} onToggle={() => toggleSection('financing')} color="purple" />
+          {expandedSections.financing && (<div className="p-4"><InputField label={t.fields.bankLoan} value={fatteningInputs.bankLoanPercent * 100} onChange={(v) => updateFatteningInput('bankLoanPercent', v / 100)} suffix="%" /><InputField label={t.fields.interestRate} value={fatteningInputs.interestRate * 100} onChange={(v) => updateFatteningInput('interestRate', v / 100)} suffix="%" /><InputField label={t.fields.loanTenure} value={fatteningInputs.loanTenure} onChange={(v) => updateFatteningInput('loanTenure', v)} suffix={t.units.years} /></div>)}
+        </div>
+        <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
+          <SectionHeader title={`C. ${t.sections.production}`} icon={TrendingUp} expanded={expandedSections.production} onToggle={() => toggleSection('production')} color="blue" />
+          {expandedSections.production && (<div className="p-4"><div className="grid grid-cols-2 gap-2"><InputField label={t.fields.weightIn} value={fatteningInputs.weightIn} onChange={(v) => updateFatteningInput('weightIn', v)} /><InputField label={t.fields.targetABW} value={fatteningInputs.targetABW} onChange={(v) => updateFatteningInput('targetABW', v)} /><InputField label={t.fields.mortality} value={fatteningInputs.mortality * 100} onChange={(v) => updateFatteningInput('mortality', v / 100)} suffix="%" /><InputField label={t.fields.fcr} value={fatteningInputs.fcr} onChange={(v) => updateFatteningInput('fcr', v)} step={0.1} /></div></div>)}
+        </div>
+        <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
+          <SectionHeader title={`D. ${t.sections.costs}`} expanded={expandedSections.costs} onToggle={() => toggleSection('costs')} color="orange" />
+          {expandedSections.costs && (<div className="p-4"><div className="grid grid-cols-2 gap-2"><InputField label={t.fields.piglet} value={fatteningInputs.pigletCost} onChange={(v) => updateFatteningInput('pigletCost', v)} /><InputField label={t.fields.feed} value={fatteningInputs.feedCostPerKg} onChange={(v) => updateFatteningInput('feedCostPerKg', v)} /></div></div>)}
+        </div>
+        <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
+          <SectionHeader title="E. PRICES & OTHER" expanded={expandedSections.prices} onToggle={() => toggleSection('prices')} color="purple" />
+          {expandedSections.prices && (<div className="p-4"><InputField label="Main Pig Price (IDR/kg)" value={fatteningInputs.mainPigPrice} onChange={(v) => updateFatteningInput('mainPigPrice', v)} /><div className="grid grid-cols-2 gap-2 mt-2"><InputField label="Discount Rate" value={fatteningInputs.discountRate * 100} onChange={(v) => updateFatteningInput('discountRate', v / 100)} suffix="%" /><InputField label="Tax Rate" value={fatteningInputs.taxRate * 100} onChange={(v) => updateFatteningInput('taxRate', v / 100)} suffix="%" /></div></div>)}
         </div>
       </div>
+    );
+  }, [fatteningInputs, expandedSections, projection.capex.totalCapex, updateFatteningInput, toggleSection, t]);
 
-      <div className="bg-gradient-to-r from-orange-50 to-orange-100 rounded-xl p-4 border border-orange-200">
-        <h3 className="font-bold text-orange-800 mb-4 flex items-center gap-2"><ArrowRight className="text-orange-600" size={20} /> {t.sections.fatteningParameters}</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="bg-white rounded-lg p-3">
-            <div className="text-xs font-semibold text-gray-600 mb-2">{t.sections.capex}</div>
-            <InputField label={t.fields.building} value={integratedInputs.fatteningBuildingCost} onChange={(v) => updateIntegratedInput('fatteningBuildingCost', v)} small />
-            <InputField label={t.fields.machinery} value={integratedInputs.fatteningMachineryCost} onChange={(v) => updateIntegratedInput('fatteningMachineryCost', v)} small />
-          </div>
-          <div className="bg-white rounded-lg p-3">
-            <div className="text-xs font-semibold text-gray-600 mb-2">{t.sections.kpis}</div>
-            <InputField label={t.fields.targetABW} value={integratedInputs.targetABW} onChange={(v) => updateIntegratedInput('targetABW', v)} small />
-            <InputField label={t.fields.mortality} value={integratedInputs.fatteningMortality * 100} onChange={(v) => updateIntegratedInput('fatteningMortality', v / 100)} suffix="%" small />
-            <InputField label={t.fields.fcr} value={integratedInputs.fatteningFcr} onChange={(v) => updateIntegratedInput('fatteningFcr', v)} step={0.1} small />
-          </div>
-          <div className="bg-white rounded-lg p-3">
-            <div className="text-xs font-semibold text-gray-600 mb-2">{t.sections.costs} & {t.sections.prices.split('&')[0]}</div>
-            <InputField label={t.fields.feed} value={integratedInputs.fatteningFeedCostPerKg} onChange={(v) => updateIntegratedInput('fatteningFeedCostPerKg', v)} small />
-            <InputField label={t.fields.mainPigPrice} value={integratedInputs.finisherPrice} onChange={(v) => updateIntegratedInput('finisherPrice', v)} small />
+  const IntegratedDataEntry = useMemo(() => {
+    const valid = getConstructionValidation(integratedInputs.kickoffMonth, integratedInputs.kickoffYear, integratedInputs.projectStartMonth, integratedInputs.projectStartYear, t);
+    return (
+      <div className="space-y-4">
+        <div className="bg-white rounded-xl p-4 border border-indigo-200 shadow-sm">
+          <div className="flex items-center justify-between flex-wrap gap-4">
+            <div className="flex items-center gap-2">
+              <div className="bg-indigo-100 p-2 rounded-lg"><Factory className="text-indigo-600" size={20} /></div>
+              <div><div className="font-bold text-gray-800">{t.sections.integratedModel}</div></div>
+            </div>
+            <div className="flex items-center gap-2 text-sm bg-gray-50 px-3 py-2 rounded-lg border border-gray-100">
+              <div className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-emerald-500"></span> {t.sections.breeding}</div>
+              <ArrowRight size={14} className="text-gray-400" />
+              <div className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-orange-500"></span> {t.sections.piglet}</div>
+              <ArrowRight size={14} className="text-gray-400" />
+              <div className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-blue-500"></span> {t.sections.fattening}</div>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
-        <SectionHeader title={t.sections.other} expanded={expandedSections.other} onToggle={() => toggleSection('other')} color="purple" icon={FileText} />
-        {expandedSections.other && (<div className="p-4 grid grid-cols-2 md:grid-cols-4 gap-4"><InputField label={t.fields.discountRate} value={integratedInputs.discountRate * 100} onChange={(v) => updateIntegratedInput('discountRate', v / 100)} suffix="%" /><InputField label={t.fields.taxRate} value={integratedInputs.taxRate * 100} onChange={(v) => updateIntegratedInput('taxRate', v / 100)} suffix="%" /><InputField label={t.fields.opex} value={integratedInputs.opexPercent * 100} onChange={(v) => updateIntegratedInput('opexPercent', v / 100)} suffix="%" /><InputField label={t.fields.workingCap} value={integratedInputs.workingCapitalPercent * 100} onChange={(v) => updateIntegratedInput('workingCapitalPercent', v / 100)} suffix="%" /></div>)}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
+            <SectionHeader title={t.sections.farmInfo} icon={Factory} expanded={expandedSections.farm} onToggle={() => toggleSection('farm')} color="indigo" />
+            {expandedSections.farm && (<div className="p-4">
+              <InputField label={t.fields.farmName} value={integratedInputs.farmName} onChange={(v) => updateIntegratedInput('farmName', v)} type="text" />
+              <InputField label={t.fields.location} value={integratedInputs.location} onChange={(v) => updateIntegratedInput('location', v)} type="text" />
+              <DateInput label={t.fields.projectKickoff} month={integratedInputs.kickoffMonth} year={integratedInputs.kickoffYear} onChangeMonth={(v) => updateIntegratedInput('kickoffMonth', v)} onChangeYear={(v) => updateIntegratedInput('kickoffYear', v)} error={valid?.error} />
+              {valid?.months !== undefined && !valid.error && <div className="mb-3 text-xs text-blue-600 bg-blue-50 p-2 rounded"><strong>{t.fields.constructionPeriod}:</strong> {valid.label}</div>}
+              <DateInput label={t.fields.firstGiltInDate} month={integratedInputs.projectStartMonth} year={integratedInputs.projectStartYear} onChangeMonth={(v) => updateIntegratedInput('projectStartMonth', v)} onChangeYear={(v) => updateIntegratedInput('projectStartYear', v)} />
+              <InputField label={t.fields.projectDuration} value={integratedInputs.projectDuration} onChange={(v) => updateIntegratedInput('projectDuration', v)} suffix={t.units.years} />
+              <div className="mt-4 grid grid-cols-2 gap-4">
+                <div className="p-3 bg-emerald-50 rounded-lg"><div className="text-xs font-semibold text-emerald-700 mb-2">{t.sections.breeding.toUpperCase()}</div><InputField label={t.fields.sowCapacity} value={integratedInputs.breedingSowCapacity} onChange={(v) => updateIntegratedInput('breedingSowCapacity', v)} suffix={t.units.sows} small /></div>
+                <div className="p-3 bg-orange-50 rounded-lg">
+                  <div className="text-xs font-semibold text-orange-700 mb-2">{t.sections.fattening.toUpperCase()}</div>
+                  <label className="flex items-center gap-2 text-xs"><input type="radio" checked={integratedInputs.fatteningCapacityMode === 'auto'} onChange={() => updateIntegratedInput('fatteningCapacityMode', 'auto')} />{t.fields.autoMatch}</label>
+                  <label className="flex items-center gap-2 text-xs mt-1"><input type="radio" checked={integratedInputs.fatteningCapacityMode === 'manual'} onChange={() => updateIntegratedInput('fatteningCapacityMode', 'manual')} />{t.fields.manual}</label>
+                  {integratedInputs.fatteningCapacityMode === 'manual' && <InputField label={t.fields.capacityHeadsYear} value={integratedInputs.fatteningManualCapacity} onChange={(v) => updateIntegratedInput('fatteningManualCapacity', v)} small />}
+                </div>
+              </div>
+            </div>)}
+          </div>
+          <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
+            <SectionHeader title={t.sections.financing} icon={PiggyBank} expanded={expandedSections.financing} onToggle={() => toggleSection('financing')} color="purple" />
+            {expandedSections.financing && (<div className="p-4">
+              <InputField label={t.fields.bankLoan} value={integratedInputs.bankLoanPercent * 100} onChange={(v) => updateIntegratedInput('bankLoanPercent', v / 100)} suffix="%" />
+              <InputField label={t.fields.interestRate} value={integratedInputs.interestRate * 100} onChange={(v) => updateIntegratedInput('interestRate', v / 100)} suffix="%" />
+              <InputField label={t.fields.loanTenure} value={integratedInputs.loanTenure} onChange={(v) => updateIntegratedInput('loanTenure', v)} suffix={t.units.years} />
+              <div className="mt-3 p-3 bg-indigo-50 rounded-lg text-xs">
+                <div className="font-semibold text-indigo-800 mb-2">{t.sections.investmentSummary}</div>
+                <div className="grid grid-cols-2 gap-1">
+                  <div>{t.sections.breeding} CAPEX:</div><div className="text-right">IDR {formatNumber(projection.capex.breedingCapex)} M</div>
+                  <div>{t.sections.fattening} CAPEX:</div><div className="text-right">IDR {formatNumber(projection.capex.fatteningCapex)} M</div>
+                  <div className="font-bold">Total CAPEX:</div><div className="text-right font-bold">IDR {formatNumber(projection.capex.totalCapex)} M</div>
+                </div>
+              </div>
+            </div>)}
+          </div>
+        </div>
+
+        <div className="bg-gradient-to-r from-emerald-50 to-emerald-100 rounded-xl p-4 border border-emerald-200">
+          <h3 className="font-bold text-emerald-800 mb-4 flex items-center gap-2"><ArrowRight className="text-emerald-600" size={20} /> {t.sections.breedingParameters}</h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="bg-white rounded-lg p-3">
+              <div className="text-xs font-semibold text-gray-600 mb-2">{t.sections.capex}</div>
+              <InputField label={t.fields.building} value={integratedInputs.breedingBuildingCost} onChange={(v) => updateIntegratedInput('breedingBuildingCost', v)} small />
+              <InputField label={t.fields.machinery} value={integratedInputs.breedingMachineryCost} onChange={(v) => updateIntegratedInput('breedingMachineryCost', v)} small />
+            </div>
+            <div className="bg-white rounded-lg p-3">
+              <div className="text-xs font-semibold text-gray-600 mb-2">{t.sections.kpis}</div>
+              <InputField label={`${t.fields.farrowRate} ${t.fields.year2Plus}`} value={integratedInputs.farrowingRateY2 * 100} onChange={(v) => updateIntegratedInput('farrowingRateY2', v / 100)} suffix="%" small />
+              <InputField label={`${t.fields.bornAlive} ${t.fields.year2Plus}`} value={integratedInputs.bornAliveY2} onChange={(v) => updateIntegratedInput('bornAliveY2', v)} small />
+              <div className="text-xs mt-2 p-2 bg-gray-50 rounded">W/S/Y: {formatNumber(projection.kpis.weanPerSowY2, 2)}</div>
+            </div>
+            <div className="bg-white rounded-lg p-3">
+              <div className="text-xs font-semibold text-gray-600 mb-2">{t.sections.costs}</div>
+              <InputField label={t.fields.gilt} value={integratedInputs.giltCost} onChange={(v) => updateIntegratedInput('giltCost', v)} small />
+              <InputField label={t.fields.feed} value={integratedInputs.sowFeedCostPerKg} onChange={(v) => updateIntegratedInput('sowFeedCostPerKg', v)} small />
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-gradient-to-r from-orange-50 to-orange-100 rounded-xl p-4 border border-orange-200">
+          <h3 className="font-bold text-orange-800 mb-4 flex items-center gap-2"><ArrowRight className="text-orange-600" size={20} /> {t.sections.fatteningParameters}</h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="bg-white rounded-lg p-3">
+              <div className="text-xs font-semibold text-gray-600 mb-2">{t.sections.capex}</div>
+              <InputField label={t.fields.building} value={integratedInputs.fatteningBuildingCost} onChange={(v) => updateIntegratedInput('fatteningBuildingCost', v)} small />
+              <InputField label={t.fields.machinery} value={integratedInputs.fatteningMachineryCost} onChange={(v) => updateIntegratedInput('fatteningMachineryCost', v)} small />
+            </div>
+            <div className="bg-white rounded-lg p-3">
+              <div className="text-xs font-semibold text-gray-600 mb-2">{t.sections.kpis}</div>
+              <InputField label={t.fields.targetABW} value={integratedInputs.targetABW} onChange={(v) => updateIntegratedInput('targetABW', v)} small />
+              <InputField label={t.fields.mortality} value={integratedInputs.fatteningMortality * 100} onChange={(v) => updateIntegratedInput('fatteningMortality', v / 100)} suffix="%" small />
+              <InputField label={t.fields.fcr} value={integratedInputs.fatteningFcr} onChange={(v) => updateIntegratedInput('fatteningFcr', v)} step={0.1} small />
+            </div>
+            <div className="bg-white rounded-lg p-3">
+              <div className="text-xs font-semibold text-gray-600 mb-2">{t.sections.costs} & {t.sections.prices.split('&')[0]}</div>
+              <InputField label={t.fields.feed} value={integratedInputs.fatteningFeedCostPerKg} onChange={(v) => updateIntegratedInput('fatteningFeedCostPerKg', v)} small />
+              <InputField label={t.fields.mainPigPrice} value={integratedInputs.finisherPrice} onChange={(v) => updateIntegratedInput('finisherPrice', v)} small />
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
+          <SectionHeader title={t.sections.other} expanded={expandedSections.other} onToggle={() => toggleSection('other')} color="purple" icon={FileText} />
+          {expandedSections.other && (<div className="p-4 grid grid-cols-2 md:grid-cols-4 gap-4"><InputField label={t.fields.discountRate} value={integratedInputs.discountRate * 100} onChange={(v) => updateIntegratedInput('discountRate', v / 100)} suffix="%" /><InputField label={t.fields.taxRate} value={integratedInputs.taxRate * 100} onChange={(v) => updateIntegratedInput('taxRate', v / 100)} suffix="%" /><InputField label={t.fields.opex} value={integratedInputs.opexPercent * 100} onChange={(v) => updateIntegratedInput('opexPercent', v / 100)} suffix="%" /><InputField label={t.fields.workingCap} value={integratedInputs.workingCapitalPercent * 100} onChange={(v) => updateIntegratedInput('workingCapitalPercent', v / 100)} suffix="%" /></div>)}
+        </div>
       </div>
-    </div>
-  ), [integratedInputs, expandedSections, projection.capex.totalCapex, updateIntegratedInput, toggleSection, t]);
+    );
+  }, [integratedInputs, expandedSections, projection.capex.totalCapex, updateIntegratedInput, toggleSection, t]);
 
   // PROJECTION TAB
   const ProjectionTab = useMemo(() => (
@@ -510,7 +698,7 @@ function FarmFSCalculator() {
           <thead className="bg-gray-100">
             <tr>
               <th className="px-2 py-2 text-left font-semibold sticky left-0 bg-gray-100">{t.projection.items.item}</th>
-              {projection.yearly.map((y) => <th key={y.year} className="px-2 py-2 text-right font-semibold">Y{y.year}</th>)}
+              {projection.yearly.map((y) => <th key={y.year} className="px-2 py-2 text-right font-semibold">{y.label}</th>)}
               <th className="px-2 py-2 text-right font-semibold bg-blue-100">{t.projection.items.total}</th>
             </tr>
           </thead>
@@ -541,28 +729,51 @@ function FarmFSCalculator() {
   ), [farmType, inputs.projectDuration, projection, themeGradient, t]);
 
   // SUMMARY TAB
-  const SummaryTab = useMemo(() => (
-    <div className="space-y-6">
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-        <SummaryCard title={t.summary.npv} value={`IDR ${formatNumber(projection.summary.npv)} ${t.units.million}`} positive={projection.summary.npv >= 0} />
-        <SummaryCard title={t.summary.irr} value={formatPercent(projection.summary.irr)} />
-        <SummaryCard title={t.summary.payback} value={`${formatNumber(projection.summary.paybackPeriod, 2)} ${t.units.years}`} />
-        <SummaryCard title={`${t.summary.roi} ${t.fields.year1}`} value={formatPercent(projection.summary.roiYear1)} positive={projection.summary.roiYear1 >= 0} />
-        <SummaryCard title={`${inputs.projectDuration}-${t.units.year} ${t.projection.items.netProfit}`} value={`IDR ${formatNumber(projection.summary.totalNetProfit)} ${t.units.million}`} positive={projection.summary.totalNetProfit >= 0} />
-        <SummaryCard title={`${inputs.projectDuration}-${t.units.year} ${t.projection.revenue}`} value={`IDR ${formatNumber(projection.summary.totalRevenue)} ${t.units.million}`} />
-      </div>
-      {farmType === 'integrated' && (
-        <div className="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl p-4 border border-indigo-200">
-          <h3 className="font-bold text-indigo-800 mb-3">{t.sections.investmentSummary}</h3>
-          <div className="grid grid-cols-3 gap-4 text-sm">
-            <div className="bg-white p-3 rounded-lg"><div className="text-xs text-gray-500">{t.sections.breeding} CAPEX</div><div className="font-bold text-emerald-600">IDR {formatNumber(projection.capex.breedingCapex)} {t.units.million}</div></div>
-            <div className="bg-white p-3 rounded-lg"><div className="text-xs text-gray-500">{t.sections.fattening} CAPEX</div><div className="font-bold text-orange-600">IDR {formatNumber(projection.capex.fatteningCapex)} {t.units.million}</div></div>
-            <div className="bg-white p-3 rounded-lg"><div className="text-xs text-gray-500">Total CAPEX</div><div className="font-bold text-indigo-600">IDR {formatNumber(projection.capex.totalCapex)} {t.units.million}</div></div>
+  const SummaryTab = useMemo(() => {
+    const { kickoffMonth, kickoffYear, projectStartMonth, projectStartYear } = inputs;
+    let timeline = null;
+
+    if (kickoffMonth && kickoffYear && projectStartMonth && projectStartYear) {
+      const months = (projectStartYear - kickoffYear) * 12 + (projectStartMonth - kickoffMonth);
+      if (months >= 0) {
+        timeline = (
+          <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-4 flex items-center gap-3">
+            <CalendarClock className="text-blue-600" size={24} />
+            <div>
+              <div className="font-semibold text-blue-800">{t.fields.constructionPeriod}: {months} {t.units.months}</div>
+              <div className="text-xs text-blue-600">
+                {monthNames[kickoffMonth - 1]} {kickoffYear} <ArrowRight className="inline mx-1" size={12} /> {monthNames[projectStartMonth - 1]} {projectStartYear}
+              </div>
+            </div>
           </div>
+        );
+      }
+    }
+
+    return (
+      <div className="space-y-6">
+        {timeline}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+          <SummaryCard title={t.summary.npv} value={`IDR ${formatNumber(projection.summary.npv)} ${t.units.million}`} positive={projection.summary.npv >= 0} />
+          <SummaryCard title={t.summary.irr} value={formatPercent(projection.summary.irr)} />
+          <SummaryCard title={t.summary.payback} value={`${formatNumber(projection.summary.paybackPeriod, 2)} ${t.units.years}`} subtitle={projection.summary.paybackDate} />
+          <SummaryCard title={`${t.summary.roi} ${t.fields.year1}`} value={formatPercent(projection.summary.roiYear1)} positive={projection.summary.roiYear1 >= 0} />
+          <SummaryCard title={`${inputs.projectDuration}-${t.units.year} ${t.projection.items.netProfit}`} value={`IDR ${formatNumber(projection.summary.totalNetProfit)} ${t.units.million}`} positive={projection.summary.totalNetProfit >= 0} />
+          <SummaryCard title={`${inputs.projectDuration}-${t.units.year} ${t.projection.revenue}`} value={`IDR ${formatNumber(projection.summary.totalRevenue)} ${t.units.million}`} />
         </div>
-      )}
-    </div>
-  ), [farmType, inputs.projectDuration, projection, t]);
+        {farmType === 'integrated' && (
+          <div className="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl p-4 border border-indigo-200">
+            <h3 className="font-bold text-indigo-800 mb-3">{t.sections.investmentSummary}</h3>
+            <div className="grid grid-cols-3 gap-4 text-sm">
+              <div className="bg-white p-3 rounded-lg"><div className="text-xs text-gray-500">{t.sections.breeding} CAPEX</div><div className="font-bold text-emerald-600">IDR {formatNumber(projection.capex.breedingCapex)} {t.units.million}</div></div>
+              <div className="bg-white p-3 rounded-lg"><div className="text-xs text-gray-500">{t.sections.fattening} CAPEX</div><div className="font-bold text-orange-600">IDR {formatNumber(projection.capex.fatteningCapex)} {t.units.million}</div></div>
+              <div className="bg-white p-3 rounded-lg"><div className="text-xs text-gray-500">Total CAPEX</div><div className="font-bold text-indigo-600">IDR {formatNumber(projection.capex.totalCapex)} {t.units.million}</div></div>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }, [farmType, inputs.projectDuration, projection, t]);
 
   // =====================================================
   // SCENARIOS TAB
@@ -766,11 +977,7 @@ function FarmFSCalculator() {
             farmType === 'fattening' ? FatteningDataEntry :
               BreedingDataEntry
         )}
-        {activeTab === 'entry' && (
-          farmType === 'integrated' ? IntegratedDataEntry :
-            farmType === 'fattening' ? FatteningDataEntry :
-              BreedingDataEntry
-        )}
+
         {activeTab === 'projection' && ProjectionTab}
         {activeTab === 'summary' && SummaryTab}
         {activeTab === 'scenarios' && ScenariosTab}
