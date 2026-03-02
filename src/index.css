@@ -1,0 +1,193 @@
+@import "tailwindcss";
+
+/* Hide print title on screen */
+.print-title {
+  display: none;
+}
+
+/* ============================================
+   PROFESSIONAL PRINT STYLES
+   ============================================ */
+@media print {
+  /* Hide all UI elements */
+  header,
+  nav,
+  button,
+  .no-print {
+    display: none !important;
+  }
+
+  /* Hide filter dropdowns and controls */
+  select,
+  input[type="text"],
+  input[type="number"],
+  label:has(+ select),
+  .flex.items-center.gap-2:has(select) {
+    display: none !important;
+  }
+
+  /* Reset page margins and background */
+  body {
+    margin: 0;
+    padding: 0 !important;
+    background: white !important;
+  }
+
+  /* Main content area */
+  main {
+    max-width: 100% !important;
+    padding: 10px !important;
+    margin: 0 !important;
+  }
+
+  /* Summary boxes - keep visible and styled */
+  .grid.grid-cols-3.gap-4,
+  .grid.grid-cols-4.gap-4 {
+    display: grid !important;
+    page-break-inside: avoid;
+    margin-bottom: 20px;
+  }
+
+  /* Individual summary box styling */
+  .bg-gradient-to-br {
+    border: 2px solid #e5e7eb !important;
+    background: white !important;
+    page-break-inside: avoid;
+    padding: 12px !important;
+  }
+
+  /* Keep text colors readable */
+  .text-blue-600,
+  .text-blue-700,
+  .text-green-600,
+  .text-green-700,
+  .text-green-800,
+  .text-yellow-700,
+  .text-yellow-800,
+  .text-red-600,
+  .text-red-700,
+  .text-orange-600,
+  .text-purple-600 {
+    color: #1f2937 !important;
+  }
+
+  /* Table container */
+  .bg-white.rounded-lg.shadow-sm.border {
+    box-shadow: none !important;
+    border: 1px solid #d1d5db !important;
+    border-radius: 0 !important;
+    page-break-inside: auto;
+  }
+
+  /* Table styling */
+  table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    font-size: 10px !important;
+  }
+
+  thead {
+    background: #f3f4f6 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  th {
+    border: 1px solid #d1d5db !important;
+    padding: 8px 4px !important;
+    font-weight: 600 !important;
+    color: #1f2937 !important;
+    text-align: center !important;
+  }
+  
+  /* Override colored header backgrounds to light gray with black text */
+  thead th[class*="bg-blue"],
+  thead th[class*="bg-green"],
+  thead th[class*="bg-purple"],
+  thead th[class*="bg-orange"],
+  thead th[class*="bg-gray"] {
+    background: #f3f4f6 !important;
+    color: #1f2937 !important;
+  }
+
+  td {
+    border: 1px solid #e5e7eb !important;
+    padding: 6px 4px !important;
+    text-align: center !important;
+  }
+
+  /* Zebra striping for readability */
+  tbody tr:nth-child(even) {
+    background: #f9fafb !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Total/summary rows - light gray background with black text */
+  tbody tr:last-child,
+  tbody tr[class*="bg-gray-700"],
+  tbody tr.bg-gray-700 {
+    background: #e5e7eb !important;
+    color: #1f2937 !important;
+    font-weight: 600 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Override all text colors in summary rows to black */
+  tbody tr:last-child *,
+  tbody tr[class*="bg-gray-700"] *,
+  tbody tr.bg-gray-700 * {
+    color: #1f2937 !important;
+  }
+
+  /* Page breaks */
+  .space-y-6 > div {
+    page-break-inside: avoid;
+  }
+
+  /* Hide overflow scrolling */
+  .overflow-x-auto {
+    overflow: visible !important;
+  }
+
+  /* Page settings */
+  @page {
+    margin: 0.75cm;
+    size: A4 landscape;
+  }
+
+  /* Ensure colors print */
+  * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  
+  /* Print title styling */
+  .print-title {
+    display: block !important;
+    font-size: 14px;
+    font-weight: bold;
+    color: #1f2937;
+    margin-bottom: 10px;
+    padding-bottom: 6px;
+    border-bottom: 2px solid #1f2937;
+    text-align: center;
+  }
+  
+  /* Add spacing between sections */
+  .space-y-6 {
+    margin-top: 0 !important;
+  }
+  
+  /* Optimize table for landscape printing */
+  tr {
+    page-break-inside: avoid;
+    page-break-after: auto;
+  }
+  
+  /* Ensure first element starts at top of page */
+  .space-y-6 > div:first-child {
+    margin-top: 0 !important;
+  }
+}
