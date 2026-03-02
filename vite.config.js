@@ -5,7 +5,7 @@ import tailwindcssPlugin from '@tailwindcss/postcss'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
-  base: '/FSPigFarm/',
+  base: '/',
   css: {
     postcss: {
       plugins: [
