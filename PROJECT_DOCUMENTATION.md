@@ -17,7 +17,7 @@
 - Gilt purchase cost management (optional)
 - Culled sow revenue tracking
 
-#### **Fattening Mode** 🐷
+#### **Fattening Mode** 
 - Fokus pada pembesaran piglet menjadi finisher
 - Multi-exit strategy (berbagai target berat jual)
 - Monthly piglet purchase planning

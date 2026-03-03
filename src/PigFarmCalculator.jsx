@@ -2219,7 +2219,7 @@ const CostReferenceGuide = ({ t }) => {
                         <Info className="text-blue-600" size={24} />
                         <div className="text-left">
                             <h3 className="text-lg font-bold text-gray-800">
-                                📚 {t.calculator.costGuide.title}
+                                 {t.calculator.costGuide.title}
                             </h3>
                             <p className="text-sm text-gray-600">
                                 {t.calculator.costGuide.subtitle}
@@ -2905,7 +2905,7 @@ const BreedingSetup = ({ cohorts, setCohorts, addCohort, deleteCohort, updateCoh
         {/* Gilt Cohorts */}
         <div className="bg-white rounded-lg shadow-sm border p-6">
             <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-bold text-gray-800">🐷 {t.calculator.setup.giltCohorts}</h2>
+                <h2 className="text-xl font-bold text-gray-800"> {t.calculator.setup.giltCohorts}</h2>
                 <button
                     onClick={addCohort}
                     className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center gap-2"
@@ -3531,10 +3531,10 @@ const BarnManagementSection = ({
                                                             {/* Exit Point Summary */}
                                                             <div className="mt-2 grid grid-cols-3 gap-2 text-[10px]">
                                                                 <div className="text-gray-600">
-                                                                    🐷 Pigs: <strong>{pigsAtExit}</strong> heads
+                                                                     Pigs: <strong>{pigsAtExit}</strong> heads
                                                                 </div>
                                                                 <div className="text-gray-600">
-                                                                    🌾 Feed: <strong>{feedPerPig.toFixed(1)}</strong> kg/pig
+                                                                     Feed: <strong>{feedPerPig.toFixed(1)}</strong> kg/pig
                                                                 </div>
                                                                 <div className="text-green-700">
                                                                     💰 Revenue: <strong>{formatNumber(Math.round(revenuePerPig))}</strong> IDR/pig
@@ -4115,7 +4115,7 @@ const IntegratedSetup = ({
             {/* GILT COHORTS SECTION (Inline from BreedingSetup) */}
             <div className="bg-white rounded-lg shadow-sm border p-6">
                 <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-xl font-bold text-gray-800">🐷 Gilt Cohorts</h2>
+                    <h2 className="text-xl font-bold text-gray-800"> Gilt Cohorts</h2>
                     <button
                         onClick={addCohort}
                         className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center gap-2"
@@ -4979,7 +4979,7 @@ const ProductionTimeline = ({ mode, MODES, projection, formatNumber, fatteningBa
                                                 {config.label}
                                             </div>
                                             <div className="text-gray-600">
-                                                🐷 Population: <strong>{formatNumber(barn.population)}</strong>
+                                                 Population: <strong>{formatNumber(barn.population)}</strong>
                                             </div>
 
                                             {statusInfo.status === 'notStarted' && (
@@ -7137,7 +7137,7 @@ export default function PigFarmCalculator({ onBack }) { // onBack prop added
                                 PIG FARM PRODUCTION CALCULATOR
                             </h1>
                             <p className="text-blue-200 text-sm mt-1 ml-12">
-                                {mode === MODES.BREEDING ? '🐷 Breeding Mode' :
+                                {mode === MODES.BREEDING ? ' Breeding Mode' :
                                     mode === MODES.FATTENING ? '🥩 Fattening Mode' :
                                         '🔗 Integrated Mode'}
                             </p>
