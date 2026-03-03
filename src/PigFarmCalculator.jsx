@@ -7119,7 +7119,7 @@ export default function PigFarmCalculator({ onBack }) { // onBack prop added
     // ============================================
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 pb-16 sm:pb-20">
             {/* Header */}
             <header className="bg-gradient-to-r from-blue-800 to-indigo-900 text-white shadow-lg">
                 <div className="max-w-7xl mx-auto px-4 py-6">
