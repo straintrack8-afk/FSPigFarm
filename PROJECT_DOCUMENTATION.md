@@ -1,14 +1,14 @@
 # Pig Farm Calculator - Project Documentation
 
-## 📋 Overview
+##  Overview
 
 **Pig Farm Calculator** adalah aplikasi web komprehensif untuk perencanaan dan analisis finansial farm babi. Aplikasi ini mendukung 3 mode operasi yang berbeda dengan fitur proyeksi timeline, analisis biaya-manfaat, dan reporting yang detail.
 
-## 🎯 Core Features
+##  Core Features
 
 ### 1. **Three Farm Operation Modes**
 
-#### **Breeding Mode** 🐖
+#### **Breeding Mode** 
 - Fokus pada produksi piglet (weaner)
 - Manajemen sow population dengan cohort system
 - Biological cycle tracking (mating, gestation, lactation, weaning)
@@ -25,7 +25,7 @@
 - FCR (Feed Conversion Ratio) optimization
 - Mortality rate management
 
-#### **Integrated Mode** 🏭
+#### **Integrated Mode** 
 - Kombinasi Breeding + Nursery + Fattening
 - Cohort-based gilt entry system (manual & auto-generated)
 - Flexible allocation: Nursery vs Fattening
@@ -104,7 +104,7 @@
 - Dynamic summary calculation based on filtered data
 - Year-end totals automatically calculated
 
-## 🏗️ Technical Architecture
+##  Technical Architecture
 
 ### **Frontend Stack**
 - **React** (Functional Components with Hooks)
@@ -151,7 +151,7 @@
    - Summary boxes
    - Year filtering
 
-## 📊 Calculation Engine
+##  Calculation Engine
 
 ### **Breeding Mode Calculations**
 ```javascript
@@ -190,7 +190,7 @@ const fixedEscalationFactor = Math.pow(1 + fixedEscalationRate, yearIndex);
 - AHP, Labor, Overhead, Utility costs
 ```
 
-## 🎨 UI/UX Features
+##  UI/UX Features
 
 ### **Responsive Design**
 - Mobile-friendly layout
@@ -210,9 +210,9 @@ const fixedEscalationFactor = Math.pow(1 + fixedEscalationRate, yearIndex);
 - Clear section headers with emojis
 - Logical grouping of related inputs
 
-## 📈 Recent Achievements (Feb 15, 2026)
+##  Recent Achievements (Feb 15, 2026)
 
-### ✅ **Print/PDF Styling Refinement**
+###  **Print/PDF Styling Refinement**
 - Fixed blank first page issue in print preview
 - Added print-only title without causing page breaks
 - Ensured title appears once at top of content
@@ -220,7 +220,7 @@ const fixedEscalationFactor = Math.pow(1 + fixedEscalationRate, yearIndex);
 - Gray summary rows with black text for print visibility
 - Landscape A4 format with proper margins
 
-### ✅ **Financial Cash Flow Table Restructure (Integrated Mode)**
+###  **Financial Cash Flow Table Restructure (Integrated Mode)**
 - Removed Sales Volume columns (Nursery, Fattening, Culled Sows)
 - Added detailed operational cost breakdown:
   - Gilt Purchase Cost
@@ -233,7 +233,7 @@ const fixedEscalationFactor = Math.pow(1 + fixedEscalationRate, yearIndex);
 - Updated year-end summary rows to match new structure
 - Consistent with Breeding mode cost breakdown
 
-### ✅ **Weaner Price Input Standardization**
+###  **Weaner Price Input Standardization**
 - **Breeding Mode**: Already using full IDR format
 - **Integrated Mode**: Changed from "IDR '000" to full "IDR"
 - **Fattening Mode**: Changed from "IDR M" (millions) to full "IDR"
@@ -241,22 +241,22 @@ const fixedEscalationFactor = Math.pow(1 + fixedEscalationRate, yearIndex);
 - Direct input of full amount (e.g., 1200000)
 - Added placeholder text for clarity
 
-### ✅ **Code Quality Improvements**
+###  **Code Quality Improvements**
 - Consistent naming conventions
 - Proper component structure
 - Optimized re-renders with useMemo
 - Clean separation of concerns
 
-## 🔮 Roadmap for Tomorrow (Feb 16, 2026)
+##  Roadmap for Tomorrow (Feb 16, 2026)
 
-### 1. **Test Fattening Farm** 🧪
+### 1. **Test Fattening Farm** 
 - Comprehensive testing of Fattening mode calculations
 - Verify multi-exit strategy logic
 - Test edge cases and boundary conditions
 - Validate financial projections
 - Check print/PDF output
 
-### 2. **Multi-Language Support** 🌍
+### 2. **Multi-Language Support** 
 - Implement 3-language system:
   - **Vietnamese** (Tiếng Việt)
   - **English**
@@ -266,7 +266,7 @@ const fixedEscalationFactor = Math.pow(1 + fixedEscalationRate, yearIndex);
 - Maintain number formatting per locale
 - Persistent language preference
 
-## 📝 Notes
+##  Notes
 
 ### **Key Design Decisions**
 1. **Calendar Year Escalation**: Cost escalation based on calendar year (not animal age) for realistic financial modeling
@@ -290,7 +290,7 @@ const fixedEscalationFactor = Math.pow(1 + fixedEscalationRate, yearIndex);
 - Historical data import
 - Cloud save/sync
 
-## 🙏 Acknowledgments
+##  Acknowledgments
 
 Developed with focus on:
 - **Accuracy**: Realistic biological and financial modeling

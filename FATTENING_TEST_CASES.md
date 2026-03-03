@@ -1,6 +1,6 @@
 # Fattening Mode - Test Cases
 
-## Test Case 1: Basic Single Exit Point ✅
+## Test Case 1: Basic Single Exit Point 
 
 ### Parameters:
 - **Monthly Piglet Purchase**: 100 head
@@ -45,7 +45,7 @@
 
 ---
 
-## Test Case 2: Multi-Exit Strategy (3 Exit Points) 🎯
+## Test Case 2: Multi-Exit Strategy (3 Exit Points) 
 
 ### Parameters:
 Same as Test Case 1, but with multiple exit points
@@ -94,7 +94,7 @@ Same as Test Case 1, but with multiple exit points
 
 ---
 
-## Test Case 3: Edge Case - Zero Purchase 🚫
+## Test Case 3: Edge Case - Zero Purchase 
 
 ### Parameters:
 - **Monthly Piglet Purchase**: 0 head
@@ -110,7 +110,7 @@ Same as Test Case 1, but with multiple exit points
 
 ---
 
-## Test Case 4: High Mortality (20%) ⚠️
+## Test Case 4: High Mortality (20%) 
 
 ### Parameters:
 - **Monthly Piglet Purchase**: 100 head
@@ -127,7 +127,7 @@ Same as Test Case 1, but with multiple exit points
 
 ---
 
-## Test Case 5: Cost Escalation (Year 2) 📈
+## Test Case 5: Cost Escalation (Year 2) 
 
 ### Parameters:
 Same as Test Case 1, but checking Month 13 (Year 2)
@@ -150,7 +150,7 @@ Same as Test Case 1, but checking Month 13 (Year 2)
 
 ---
 
-## Test Case 6: Extreme ADG Values 🚀
+## Test Case 6: Extreme ADG Values 
 
 ### Test 6A: Very High ADG (1.0 kg/day)
 - Days to 100kg: (100-7) / 1.0 = 93 days (~3.1 months)
@@ -164,7 +164,7 @@ Same as Test Case 1, but checking Month 13 (Year 2)
 
 ---
 
-## Test Case 7: Different FCR Values 🍖
+## Test Case 7: Different FCR Values 
 
 ### Test 7A: Excellent FCR (2.0)
 - Feed per Pig: 93 × 2.0 = 186 kg
@@ -176,7 +176,7 @@ Same as Test Case 1, but checking Month 13 (Year 2)
 
 ---
 
-## UI/UX Test Checklist ✅
+## UI/UX Test Checklist 
 
 ### Setup Tab:
 - [ ] All input fields accept valid numbers
@@ -211,7 +211,7 @@ Same as Test Case 1, but checking Month 13 (Year 2)
 
 ---
 
-## Known Issues / Notes 📝
+## Known Issues / Notes 
 
 1. **Rounding**: Pig counts are rounded, may cause slight discrepancies in percentage distribution
 2. **Exit Month**: Currently not used in calculation (all sales assumed in same month as purchase)

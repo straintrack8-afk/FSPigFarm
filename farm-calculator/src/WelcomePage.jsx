@@ -18,7 +18,7 @@ const welcomeTranslations = {
             description: "Full project analysis including Land, Building, & Equipment CAPEX, depreciation, loan financing, and NPV/IRR.",
             button: "Open Calculator"
         },
-        footer: "© 2026 Farm Financial Suite. All rights reserved."
+        footer: " 2026 Farm Financial Suite. All rights reserved."
     },
     id: {
         title: "Pig Farm Feasibility Suite",
@@ -35,7 +35,7 @@ const welcomeTranslations = {
             description: "Analisis proyek lengkap termasuk CAPEX Lahan, Bangunan, & Peralatan, depresiasi, pembiayaan pinjaman, dan NPV/IRR.",
             button: "Buka Kalkulator"
         },
-        footer: "© 2026 Farm Financial Suite. Hak cipta dilindungi."
+        footer: " 2026 Farm Financial Suite. Hak cipta dilindungi."
     },
     vi: {
         title: "Pig Farm Feasibility Suite",
@@ -52,7 +52,7 @@ const welcomeTranslations = {
             description: "Phân tích dự án đầy đủ bao gồm CAPEX Đất, Xây dựng & Thiết bị, khấu hao, tài chính vay và NPV/IRR.",
             button: "Mở Máy Tính"
         },
-        footer: "© 2026 Farm Financial Suite. Đã đăng ký bản quyền."
+        footer: " 2026 Farm Financial Suite. Đã đăng ký bản quyền."
     }
 };
 

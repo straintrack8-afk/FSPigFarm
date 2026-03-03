@@ -1,8 +1,8 @@
 # TODO List - February 16, 2026
 
-## 🎯 Priority Tasks
+##  Priority Tasks
 
-### 1. Test Fattening Farm Mode 🧪
+### 1. Test Fattening Farm Mode 
 
 #### **Calculation Testing**
 - [ ] Test monthly piglet purchase logic
@@ -46,7 +46,7 @@
 
 ---
 
-### 2. Implement Multi-Language Support 🌍
+### 2. Implement Multi-Language Support 
 
 #### **Languages to Support**
 1. **Vietnamese** (Tiếng Việt) - Primary
@@ -161,7 +161,7 @@
 
 ---
 
-## 📋 Additional Improvements (If Time Permits)
+##  Additional Improvements (If Time Permits)
 
 ### **Bug Fixes**
 - [ ] Review and fix any console errors
@@ -180,25 +180,25 @@
 
 ---
 
-## 🎯 Success Criteria
+##  Success Criteria
 
 ### **Fattening Farm Testing**
-- ✅ All calculations verified and accurate
-- ✅ No console errors or warnings
-- ✅ Print/PDF output is professional
-- ✅ Edge cases handled gracefully
+-  All calculations verified and accurate
+-  No console errors or warnings
+-  Print/PDF output is professional
+-  Edge cases handled gracefully
 
 ### **Multi-Language Feature**
-- ✅ All 3 languages fully implemented
-- ✅ Language selector works smoothly
-- ✅ No missing translations
-- ✅ Text displays correctly in all languages
-- ✅ Language preference persists across sessions
-- ✅ Print/PDF works in all languages
+-  All 3 languages fully implemented
+-  Language selector works smoothly
+-  No missing translations
+-  Text displays correctly in all languages
+-  Language preference persists across sessions
+-  Print/PDF works in all languages
 
 ---
 
-## 📝 Notes
+##  Notes
 
 - Focus on **quality over speed**
 - Test thoroughly before marking as complete

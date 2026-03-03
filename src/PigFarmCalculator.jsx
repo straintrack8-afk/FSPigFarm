@@ -557,7 +557,7 @@ const calculateSowPopulationWithCulling = (inputs, giltArrivals, initialStableHe
     // === ADD COHORT 0 (EXISTING STABLE HERD) ===
     // Cohort 0 is a stable farm that uses Year 3+ Stable Farm Culling Rate
     if (initialStableHerd > 0) {
-        console.log(`🏠 Adding Cohort 0 (Stable Herd) to sowCohorts: ${initialStableHerd} sows`);
+        console.log(` Adding Cohort 0 (Stable Herd) to sowCohorts: ${initialStableHerd} sows`);
         sowCohorts.push({
             arrivalMonth: -1, // Already productive before project start
             count: initialStableHerd,
@@ -575,7 +575,7 @@ const calculateSowPopulationWithCulling = (inputs, giltArrivals, initialStableHe
         const annualRate = inputs.cullingRateY3Plus || 0.40;
         const monthlyReplacement = Math.round((initialStableHerd * annualRate) / 12);
 
-        console.log(`🏠 Pre-populating replacement gilts for stable farm (${monthlyReplacement} gilts/month, lead time=${leadTime} months)`);
+        console.log(` Pre-populating replacement gilts for stable farm (${monthlyReplacement} gilts/month, lead time=${leadTime} months)`);
 
         // Add replacement gilts that arrived before M0 and will become productive
         for (let i = 1; i <= leadTime; i++) {
@@ -599,7 +599,7 @@ const calculateSowPopulationWithCulling = (inputs, giltArrivals, initialStableHe
         // SKIP old stable cohorts (GILT-Y*-Stable) - they conflict with Cohort 0
         const isOldStableCohort = arrival.cohortId && String(arrival.cohortId).includes('Stable');
         if (isOldStableCohort) {
-            console.log(`⏭️ Skipping old stable cohort: ${arrival.cohortId} (conflicts with Cohort 0)`);
+            console.log(` Skipping old stable cohort: ${arrival.cohortId} (conflicts with Cohort 0)`);
             return; // Skip this cohort
         }
 
@@ -654,7 +654,7 @@ const calculateSowPopulationWithCulling = (inputs, giltArrivals, initialStableHe
 
         // Debug: Log lead time
         if (m === 0) {
-            console.log(`🔍 LEAD TIME: ${leadTime} months (from setup: ${inputs.giltLeadTime})`);
+            console.log(` LEAD TIME: ${leadTime} months (from setup: ${inputs.giltLeadTime})`);
         }
 
         const stableGiltsProductiveCount = giltArrivals
@@ -676,7 +676,7 @@ const calculateSowPopulationWithCulling = (inputs, giltArrivals, initialStableHe
 
         // DEBUG: Show active cohorts for Month 0
         if (m === 0) {
-            console.log("\n🔍 DEBUG M0 Active Cohorts:");
+            console.log("\n DEBUG M0 Active Cohorts:");
             activeCohorts.forEach(c => {
                 console.log(`  - ID: ${c.cohortId}, Count: ${c.count}, ArrMonth: ${c.arrivalMonth}, isInitialStock: ${c.isInitialStock}`);
             });
@@ -731,13 +731,13 @@ const calculateSowPopulationWithCulling = (inputs, giltArrivals, initialStableHe
                 productiveCohortsThisMonth.push(c.cohortId);
 
                 if (m === 0) {
-                    console.log(`✅ M0 Sow Prod BEFORE culling: ${c.cohortId} (Arr=${c.arrivalMonth}, Lead=${cohortLeadTime}, Count=${c.count})`);
+                    console.log(` M0 Sow Prod BEFORE culling: ${c.cohortId} (Arr=${c.arrivalMonth}, Lead=${cohortLeadTime}, Count=${c.count})`);
                 }
             }
         });
 
         if (m === 0) {
-            console.log(`✅ M0 TOTAL Sow Prod BEFORE culling: ${sowProdThisMonth}`);
+            console.log(` M0 TOTAL Sow Prod BEFORE culling: ${sowProdThisMonth}`);
         }
 
         // === AGGREGATE CULLING FOR STABLE FARM ===
@@ -774,7 +774,7 @@ const calculateSowPopulationWithCulling = (inputs, giltArrivals, initialStableHe
 
                 // Debug log
                 if (m <= 36 && annualReplacementRate > 0 && m % 6 === 0) {
-                    console.log(`🔍 M${m} Stable ${c.cohortId}: ProdAge=${productiveAgeMonths}mo, Rate=${(annualReplacementRate * 100).toFixed(0)}% (Stable Farm - always Y3+)`);
+                    console.log(` M${m} Stable ${c.cohortId}: ProdAge=${productiveAgeMonths}mo, Rate=${(annualReplacementRate * 100).toFixed(0)}% (Stable Farm - always Y3+)`);
                 }
             }
 
@@ -810,7 +810,7 @@ const calculateSowPopulationWithCulling = (inputs, giltArrivals, initialStableHe
         // === APPLY CULLING LOOP ===
         // Debug: Show all cohorts being processed
         if (m <= 24 && m % 6 === 0) {
-            console.log(`\n🔍 M${m} Culling Loop - Processing ${cohortsToProcess.length} cohorts:`);
+            console.log(`\n M${m} Culling Loop - Processing ${cohortsToProcess.length} cohorts:`);
         }
 
         cohortsToProcess.forEach(c => {
@@ -859,7 +859,7 @@ const calculateSowPopulationWithCulling = (inputs, giltArrivals, initialStableHe
                 if (m <= 36 && cullRounded > 0) {
                     const monthlyRate = (annualReplacementRate / 12 * 100).toFixed(2);
                     const exactCull = cullAmount.toFixed(2);
-                    console.log(`🔍 M${m} Manual ${c.cohortId}: ProdAge=${productiveAgeMonths}mo, AnnualRate=${(annualReplacementRate * 100).toFixed(0)}%, MonthlyRate=${monthlyRate}%, Count=${c.count}, ExactCull=${exactCull}, Rounded=${cullRounded}`);
+                    console.log(` M${m} Manual ${c.cohortId}: ProdAge=${productiveAgeMonths}mo, AnnualRate=${(annualReplacementRate * 100).toFixed(0)}%, MonthlyRate=${monthlyRate}%, Count=${c.count}, ExactCull=${exactCull}, Rounded=${cullRounded}`);
                 }
             }
 
@@ -891,7 +891,7 @@ const calculateSowPopulationWithCulling = (inputs, giltArrivals, initialStableHe
                     totalCulledThisMonth += cullRounded;
 
                     if (m <= 24) {
-                        console.log(`✂️ M${m} IMMEDIATE CULL (Stable Farm): ${cullRounded} from ${c.cohortId} - replacement gilts from previous months are productive now`);
+                        console.log(` M${m} IMMEDIATE CULL (Stable Farm): ${cullRounded} from ${c.cohortId} - replacement gilts from previous months are productive now`);
                     }
                 } else {
                     // DELAYED CULLING for new farm
@@ -904,7 +904,7 @@ const calculateSowPopulationWithCulling = (inputs, giltArrivals, initialStableHe
                     });
 
                     if (m <= 24) {
-                        console.log(`📅 M${m} SCHEDULE CULL (New Farm): ${cullRounded} from ${c.cohortId}, Lead: ${cohortLeadTime}mo → Will execute M${m + cohortLeadTime}`);
+                        console.log(` M${m} SCHEDULE CULL (New Farm): ${cullRounded} from ${c.cohortId}, Lead: ${cohortLeadTime}mo → Will execute M${m + cohortLeadTime}`);
                     }
                 }
             }
@@ -924,7 +924,7 @@ const calculateSowPopulationWithCulling = (inputs, giltArrivals, initialStableHe
                 productiveCohortsThisMonth.push(rg.cohortId);
 
                 if (m === 0) {
-                    console.log(`✅ M0 Sow Prod (Lead=0 replacement): ${rg.cohortId} (Count=${rg.count})`);
+                    console.log(` M0 Sow Prod (Lead=0 replacement): ${rg.cohortId} (Count=${rg.count})`);
                 }
             }
         });
@@ -940,7 +940,7 @@ const calculateSowPopulationWithCulling = (inputs, giltArrivals, initialStableHe
         const cullsToExecute = pendingCulls.filter(pc => pc.executeMonth === m);
 
         if (m <= 24 && cullsToExecute.length > 0) {
-            console.log(`\n✂️ M${m} EXECUTING CULLS (${cullsToExecute.length} pending culls scheduled for this month):`);
+            console.log(`\n M${m} EXECUTING CULLS (${cullsToExecute.length} pending culls scheduled for this month):`);
         }
 
         cullsToExecute.forEach(pc => {
@@ -952,7 +952,7 @@ const calculateSowPopulationWithCulling = (inputs, giltArrivals, initialStableHe
 
                 if (m <= 24) {
                     const isFromCohort0 = sourceCohort.cohortId === 'COHORT-0-INITIAL' || sourceCohort.isInitialStock;
-                    console.log(`  ✂️ Culled ${pc.cullAmount} from ${pc.sourceCohortId}${isFromCohort0 ? ' (COHORT 0)' : ''} - replacement ${pc.replacementCohortId} is now productive`);
+                    console.log(`   Culled ${pc.cullAmount} from ${pc.sourceCohortId}${isFromCohort0 ? ' (COHORT 0)' : ''} - replacement ${pc.replacementCohortId} is now productive`);
                 }
             }
         });
@@ -961,7 +961,7 @@ const calculateSowPopulationWithCulling = (inputs, giltArrivals, initialStableHe
         pendingCulls = pendingCulls.filter(pc => pc.executeMonth > m);
 
         if (m <= 3) {
-            console.log(`\n📊 Month ${m} Summary:`);
+            console.log(`\n Month ${m} Summary:`);
             console.log(`  Total Culled: ${totalCulledThisMonth}`);
             console.log(`  Total Gilt Arr: ${totalGiltArrThisMonth}`);
             console.log(`  Replacement Gilts Added: ${replacementGilts.length} cohorts`);
@@ -979,7 +979,7 @@ const calculateSowPopulationWithCulling = (inputs, giltArrivals, initialStableHe
 
         // Enhanced debug logging
         if (m <= 24 && (giltsArrivingThisMonth > 0 || sowProdThisMonth > 0 || totalCulledThisMonth > 0)) {
-            console.log(`\n📊 M${m} Summary:`);
+            console.log(`\n M${m} Summary:`);
             console.log(`  Gilt Arr: ${giltsArrivingThisMonth} (replacements generated from culling)`);
             console.log(`  Sow Prod: ${sowProdThisMonth} (gilts from PREVIOUS months becoming productive)`);
             console.log(`  Culled: ${totalCulledThisMonth} (productive sows culled)`);
@@ -1000,8 +1000,8 @@ const calculateSowPopulationWithCulling = (inputs, giltArrivals, initialStableHe
         const netChange = (giltsProductiveThisMonth || 0) - (totalCulledThisMonth || 0);
 
         if (m <= 3) {
-            console.log(`📊 Active Sows M${m}: ${Math.round(activeSowsEndMonth)}`);
-            console.log(`📊 Net Change M${m}: ${netChange} (Sow Prod ${giltsProductiveThisMonth} - Culled ${totalCulledThisMonth})`);
+            console.log(` Active Sows M${m}: ${Math.round(activeSowsEndMonth)}`);
+            console.log(` Net Change M${m}: ${netChange} (Sow Prod ${giltsProductiveThisMonth} - Culled ${totalCulledThisMonth})`);
         }
 
         monthlyPopulation.push({
@@ -1158,7 +1158,7 @@ function calculateIntegratedMode(cohorts, params, costParams, months, integrated
 
     // ONLY generate Cohort 0 for EXISTING FARMS with current population
     if (currentPopulation > 0 && !isNewFarm) {
-        console.log(`🏠 Auto-generating Cohort 0 from Current Population: ${currentPopulation} sows (Existing Farm)`);
+        console.log(` Auto-generating Cohort 0 from Current Population: ${currentPopulation} sows (Existing Farm)`);
         effectiveCohorts.push({
             id: 'COHORT-0-INITIAL',
             name: 'Cohort 0 (Initial Stock)',
@@ -1170,7 +1170,7 @@ function calculateIntegratedMode(cohorts, params, costParams, months, integrated
             isCohort0: true // Special flag for Cohort 0
         });
     } else if (isNewFarm) {
-        console.log(`🆕 New Farm Mode: Skipping Cohort 0 auto-generation. Use manual cohorts only.`);
+        console.log(` New Farm Mode: Skipping Cohort 0 auto-generation. Use manual cohorts only.`);
     }
 
     // Add user-defined cohorts (these will be Cohort 1, 2, 3, ...)
@@ -1242,7 +1242,7 @@ function calculateIntegratedMode(cohorts, params, costParams, months, integrated
             // For integrated, let's treat manual cohorts as initial stock
             // SKIP Cohort 0 - it's handled separately as currentPopulation parameter
             if (c.isCohort0) {
-                console.log(`⏭️ Skipping Cohort 0 in giltArrivals loop (handled as currentPopulation)`);
+                console.log(` Skipping Cohort 0 in giltArrivals loop (handled as currentPopulation)`);
                 return; // Skip this iteration
             }
 
@@ -1259,14 +1259,14 @@ function calculateIntegratedMode(cohorts, params, costParams, months, integrated
                     const start = new Date(projectStartDate);
                     const entry = new Date(c.entryDate);
 
-                    console.log(`📅 Date Parsing: Cohort=${c.id}, ProjectStart="${projectStartDate}" -> ${start}, Entry="${c.entryDate}" -> ${entry}`);
+                    console.log(` Date Parsing: Cohort=${c.id}, ProjectStart="${projectStartDate}" -> ${start}, Entry="${c.entryDate}" -> ${entry}`);
 
                     if (!isNaN(start.getTime()) && !isNaN(entry.getTime())) {
                         // Calculate precise month difference
                         const monthsDiff = (entry.getFullYear() - start.getFullYear()) * 12 + (entry.getMonth() - start.getMonth());
                         // Set day to middle of that month index (e.g. Index 2 -> Day 60) to ensure it lands in correct bin
                         arrivalDay = Math.max(0, monthsDiff * 30);
-                        console.log(`📊 Month Calc: monthsDiff=${monthsDiff}, arrivalDay=${arrivalDay}`);
+                        console.log(` Month Calc: monthsDiff=${monthsDiff}, arrivalDay=${arrivalDay}`);
                     }
                 }
 
@@ -1288,20 +1288,20 @@ function calculateIntegratedMode(cohorts, params, costParams, months, integrated
                 // PRIORITY 1: Cohort 0 is always immediately active
                 if (c.isCohort0) {
                     computedLeadTime = 0;
-                    console.log(`🏠 Cohort 0 (Initial Stock): Forced LeadTime=0`);
+                    console.log(` Cohort 0 (Initial Stock): Forced LeadTime=0`);
                 }
                 // PRIORITY 2: Smart Lead Time for Month 0 arrivals
                 else if (arrivalDay <= 30 && userLeadDays === undefined) {
                     computedLeadTime = 0;
-                    console.log(`🔍 Smart Lead Time: Month 0 arrival, LeadTime=0`);
+                    console.log(` Smart Lead Time: Month 0 arrival, LeadTime=0`);
                 }
                 // PRIORITY 3: User explicit override
                 else if (userLeadDays !== undefined) {
                     computedLeadTime = Math.ceil(userLeadDays / 30);
-                    console.log(`👤 User Override: LeadTime=${computedLeadTime} months (${userLeadDays} days)`);
+                    console.log(` User Override: LeadTime=${computedLeadTime} months (${userLeadDays} days)`);
                 }
 
-                console.log(`🔍 Smart Lead Time: Cohort=${c.id}, ArrivalDay=${arrivalDay}, UserDays=${userLeadDays}, FinalLead=${computedLeadTime}`);
+                console.log(` Smart Lead Time: Cohort=${c.id}, ArrivalDay=${arrivalDay}, UserDays=${userLeadDays}, FinalLead=${computedLeadTime}`);
 
                 giltArrivals.push({
                     day: arrivalDay || 0, // Fallback to 0 if NaN
@@ -1313,7 +1313,7 @@ function calculateIntegratedMode(cohorts, params, costParams, months, integrated
                     leadTime: computedLeadTime
                 });
 
-                console.log(`✅ Gilt Arrival Added: Day=${arrivalDay}, Count=${c.numberOfGilts}, LeadTime=${computedLeadTime}`);
+                console.log(` Gilt Arrival Added: Day=${arrivalDay}, Count=${c.numberOfGilts}, LeadTime=${computedLeadTime}`);
 
             }
         });
@@ -1331,14 +1331,14 @@ function calculateIntegratedMode(cohorts, params, costParams, months, integrated
         ? integratedInputs.matingSystem
         : 'batch'; // Default to batch
 
-    console.log(`🔍 DEBUG: matingSystem = "${integratedInputs.matingSystem}" -> using "${matingSystem}"`);
+    console.log(` DEBUG: matingSystem = "${integratedInputs.matingSystem}" -> using "${matingSystem}"`);
 
     if (matingSystem === 'batch') {
         // BATCH MATING LOGIC
 
         // === COHORT 0 (CURRENT POPULATION) MATING EVENTS ===
         // Handle Cohort 0 separately since it's not in giltArrivals
-        console.log(`🔍 DEBUG: currentPopulation = ${currentPopulation}`);
+        console.log(` DEBUG: currentPopulation = ${currentPopulation}`);
         if (currentPopulation > 0) {
             const cycleDays = inputs.lactationDays + inputs.drySowDays + inputs.gestationDays;
 
@@ -1357,7 +1357,7 @@ function calculateIntegratedMode(cohorts, params, costParams, months, integrated
             // Let's use Math.round for now as per previous logic.
             const sowsPerBatchRounded = Math.round(sowsPerBatch);
 
-            console.log(`🏠 Creating mating events for Cohort 0: Pop=${currentPopulation}, Batches=${numBatches}, Sows/Batch=${sowsPerBatch} (Rounded=${sowsPerBatchRounded})`);
+            console.log(` Creating mating events for Cohort 0: Pop=${currentPopulation}, Batches=${numBatches}, Sows/Batch=${sowsPerBatch} (Rounded=${sowsPerBatchRounded})`);
 
             // FIX: Declare farrowingRate outside loops so it's accessible in both
             const year = 1; // Cohort 0 is always Year 1
@@ -1421,7 +1421,7 @@ function calculateIntegratedMode(cohorts, params, costParams, months, integrated
                 cid.startsWith('GILT-REP'); // Catch internal IDs
 
             if (isStableMode && isReplacement) {
-                // console.log(`⏭️ Skipping Mating Event for Replacement Gilt ${arrival.cohortId} (Stable Mode)`);
+                // console.log(` Skipping Mating Event for Replacement Gilt ${arrival.cohortId} (Stable Mode)`);
                 return; // Skip: Production is already covered by Cohort 0 Batch Loop
             }
 
@@ -1544,7 +1544,7 @@ function calculateIntegratedMode(cohorts, params, costParams, months, integrated
 
         // Debug: Log first 10 farrowing events
         if (farrowingEvents.length <= 10) {
-            console.log(`🔍 Farrowing Event ${farrowingEvents.length}: Day=${mating.farrowingDay}, Count=${mating.sowsMated}, Piglets=${totalPiglets.toFixed(1)}, CohortID=${mating.cohortId}`);
+            console.log(` Farrowing Event ${farrowingEvents.length}: Day=${mating.farrowingDay}, Count=${mating.sowsMated}, Piglets=${totalPiglets.toFixed(1)}, CohortID=${mating.cohortId}`);
         }
     });
 
@@ -1558,7 +1558,7 @@ function calculateIntegratedMode(cohorts, params, costParams, months, integrated
     });
 
     // === STEP 6: Allocate to nursery/fattening ===
-    console.log(`🔍 Allocation Debug: Nursery%=${inputs.nurseryAllocationPercent}, Fattening%=${inputs.fatteningAllocationPercent}`);
+    console.log(` Allocation Debug: Nursery%=${inputs.nurseryAllocationPercent}, Fattening%=${inputs.fatteningAllocationPercent}`);
 
     weaningEvents.forEach(weaning => {
         const nurseryCount = weaning.piglets * inputs.nurseryAllocationPercent;
@@ -1566,7 +1566,7 @@ function calculateIntegratedMode(cohorts, params, costParams, months, integrated
 
         // Console log sample allocation for first event
         if (weaning.day < 200) {
-            console.log(`🔍 Allocation Sample: Day=${weaning.day}, Weaned=${weaning.piglets} -> Nursery=${nurseryCount}, Fattening=${fatteningCount}`);
+            console.log(` Allocation Sample: Day=${weaning.day}, Weaned=${weaning.piglets} -> Nursery=${nurseryCount}, Fattening=${fatteningCount}`);
         }
 
         if (nurseryCount > 0) {
@@ -1770,7 +1770,7 @@ function calculateIntegratedMode(cohorts, params, costParams, months, integrated
 
         // Debug logging for first few months
         if (m <= 2) {
-            console.log(`\n🔍 M${m} BREEDING MODE REVENUE CHECK:`);
+            console.log(`\n M${m} BREEDING MODE REVENUE CHECK:`);
             console.log(`  isBreedingMode: ${isBreedingMode}`);
             console.log(`  nurseryAlloc: ${inputs.nurseryAllocationPercent}`);
             console.log(`  fatteningAlloc: ${inputs.fatteningAllocationPercent}`);
@@ -1929,7 +1929,7 @@ const CostParametersSection = ({ mode, MODES, costParams, setCostParams, currenc
 
     return (
         <div className="bg-white rounded-lg shadow-sm border p-6 space-y-6">
-            <h3 className="text-lg font-bold text-gray-800">💰 {t.calculator.costParams.title}</h3>
+            <h3 className="text-lg font-bold text-gray-800"> {t.calculator.costParams.title}</h3>
 
             {/* Direct Costs */}
             <div>
@@ -2009,7 +2009,7 @@ const CostParametersSection = ({ mode, MODES, costParams, setCostParams, currenc
                 </h4>
                 <div className="mb-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
                     <p className="text-sm text-blue-800">
-                        <strong>ℹ️ Info:</strong> {t.calculator.costParams.infoText}
+                        <strong> Info:</strong> {t.calculator.costParams.infoText}
                     </p>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
@@ -2245,7 +2245,7 @@ const CostReferenceGuide = ({ t }) => {
                     {/* Info Banner */}
                     <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
                         <p className="text-sm text-blue-800">
-                            <strong>ℹ️ {t.calculator.costGuide.howToUse}</strong> {t.calculator.costGuide.howToUseText}
+                            <strong> {t.calculator.costGuide.howToUse}</strong> {t.calculator.costGuide.howToUseText}
                         </p>
                     </div>
 
@@ -2254,7 +2254,7 @@ const CostReferenceGuide = ({ t }) => {
                         <div className="flex items-center gap-2 pb-3 border-b-2 border-purple-200">
                             <DollarSign className="text-purple-600" size={24} />
                             <h4 className="text-xl font-bold text-gray-800">
-                                💼 {t.calculator.costGuide.overheadTitle}
+                                 {t.calculator.costGuide.overheadTitle}
                             </h4>
                         </div>
 
@@ -2262,7 +2262,7 @@ const CostReferenceGuide = ({ t }) => {
                         <div className="pl-6">
                             <div className="bg-gradient-to-r from-purple-50 to-purple-100 rounded-lg p-4">
                                 <h5 className="font-semibold text-purple-900 mb-3 flex items-center gap-2">
-                                    👔 {t.calculator.costGuide.managementAdmin}
+                                     {t.calculator.costGuide.managementAdmin}
                                 </h5>
                                 <div className="space-y-2">
                                     {[
@@ -2285,7 +2285,7 @@ const CostReferenceGuide = ({ t }) => {
                         <div className="pl-6">
                             <div className="bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg p-4">
                                 <h5 className="font-semibold text-blue-900 mb-3 flex items-center gap-2">
-                                    🏢 {t.calculator.costGuide.facilityCompliance}
+                                     {t.calculator.costGuide.facilityCompliance}
                                 </h5>
                                 <div className="space-y-2">
                                     {[
@@ -2308,7 +2308,7 @@ const CostReferenceGuide = ({ t }) => {
                         <div className="pl-6">
                             <div className="bg-gradient-to-r from-green-50 to-green-100 rounded-lg p-4">
                                 <h5 className="font-semibold text-green-900 mb-3 flex items-center gap-2">
-                                    🔧 {t.calculator.costGuide.generalMaintenance}
+                                     {t.calculator.costGuide.generalMaintenance}
                                 </h5>
                                 <div className="space-y-2">
                                     {[
@@ -2330,7 +2330,7 @@ const CostReferenceGuide = ({ t }) => {
                         <div className="pl-6">
                             <div className="bg-gradient-to-r from-gray-50 to-gray-100 rounded-lg p-4">
                                 <h5 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                                    📋 {t.calculator.costGuide.others}
+                                     {t.calculator.costGuide.others}
                                 </h5>
                                 <div className="space-y-2">
                                     {[
@@ -2351,7 +2351,7 @@ const CostReferenceGuide = ({ t }) => {
                         {/* Key Principle */}
                         <div className="pl-6 p-4 bg-purple-100 border-l-4 border-purple-600 rounded">
                             <p className="text-sm text-purple-900">
-                                <strong>🔑 {t.calculator.costGuide.keyPrinciple}</strong> {t.calculator.costGuide.overheadPrinciple}
+                                <strong> {t.calculator.costGuide.keyPrinciple}</strong> {t.calculator.costGuide.overheadPrinciple}
                             </p>
                         </div>
                     </div>
@@ -2364,7 +2364,7 @@ const CostReferenceGuide = ({ t }) => {
                         <div className="flex items-center gap-2 pb-3 border-b-2 border-orange-200">
                             <Zap className="text-orange-600" size={24} />
                             <h4 className="text-xl font-bold text-gray-800">
-                                ⚡ {t.calculator.costGuide.utilitiesTitle}
+                                 {t.calculator.costGuide.utilitiesTitle}
                             </h4>
                         </div>
 
@@ -2372,7 +2372,7 @@ const CostReferenceGuide = ({ t }) => {
                         <div className="pl-6">
                             <div className="bg-gradient-to-r from-yellow-50 to-orange-100 rounded-lg p-4">
                                 <h5 className="font-semibold text-orange-900 mb-3 flex items-center gap-2">
-                                    🔌 {t.calculator.costGuide.energy}
+                                     {t.calculator.costGuide.energy}
                                 </h5>
                                 <div className="space-y-2">
                                     {[
@@ -2393,7 +2393,7 @@ const CostReferenceGuide = ({ t }) => {
                         <div className="pl-6">
                             <div className="bg-gradient-to-r from-cyan-50 to-blue-100 rounded-lg p-4">
                                 <h5 className="font-semibold text-blue-900 mb-3 flex items-center gap-2">
-                                    💧 {t.calculator.costGuide.water}
+                                     {t.calculator.costGuide.water}
                                 </h5>
                                 <div className="space-y-2">
                                     {[
@@ -2414,7 +2414,7 @@ const CostReferenceGuide = ({ t }) => {
                         <div className="pl-6">
                             <div className="bg-gradient-to-r from-teal-50 to-teal-100 rounded-lg p-4">
                                 <h5 className="font-semibold text-teal-900 mb-3 flex items-center gap-2">
-                                    🧰 {t.calculator.costGuide.operationalSupplies}
+                                     {t.calculator.costGuide.operationalSupplies}
                                 </h5>
 
                                 {/* Processing Supplies */}
@@ -2474,7 +2474,7 @@ const CostReferenceGuide = ({ t }) => {
                         {/* Key Principle */}
                         <div className="pl-6 p-4 bg-orange-100 border-l-4 border-orange-600 rounded">
                             <p className="text-sm text-orange-900">
-                                <strong>🔑 {t.calculator.costGuide.keyPrinciple}</strong> {t.calculator.costGuide.utilitiesKeyPrinciple}
+                                <strong> {t.calculator.costGuide.keyPrinciple}</strong> {t.calculator.costGuide.utilitiesKeyPrinciple}
                             </p>
                         </div>
                     </div>
@@ -2482,11 +2482,11 @@ const CostReferenceGuide = ({ t }) => {
                     {/* Pro Tips Section */}
                     <div className="mt-6 p-6 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl border-2 border-indigo-200">
                         <h5 className="font-bold text-lg text-indigo-900 mb-4 flex items-center gap-2">
-                            💡 PRO TIPS FOR ACCURATE BUDGETING
+                             PRO TIPS FOR ACCURATE BUDGETING
                         </h5>
                         <div className="space-y-3">
                             <div className="flex items-start gap-3">
-                                <span className="text-2xl">1️⃣</span>
+                                <span className="text-2xl">1⃣</span>
                                 <div>
                                     <p className="font-semibold text-indigo-900">OVERHEAD:</p>
                                     <p className="text-sm text-gray-700">
@@ -2495,7 +2495,7 @@ const CostReferenceGuide = ({ t }) => {
                                 </div>
                             </div>
                             <div className="flex items-start gap-3">
-                                <span className="text-2xl">2️⃣</span>
+                                <span className="text-2xl">2⃣</span>
                                 <div>
                                     <p className="font-semibold text-indigo-900">UTILITIES:</p>
                                     <p className="text-sm text-gray-700">
@@ -2504,7 +2504,7 @@ const CostReferenceGuide = ({ t }) => {
                                 </div>
                             </div>
                             <div className="flex items-start gap-3">
-                                <span className="text-2xl">3️⃣</span>
+                                <span className="text-2xl">3⃣</span>
                                 <div>
                                     <p className="font-semibold text-indigo-900">SEASONAL:</p>
                                     <p className="text-sm text-gray-700">
@@ -2513,7 +2513,7 @@ const CostReferenceGuide = ({ t }) => {
                                 </div>
                             </div>
                             <div className="flex items-start gap-3">
-                                <span className="text-2xl">4️⃣</span>
+                                <span className="text-2xl">4⃣</span>
                                 <div>
                                     <p className="font-semibold text-indigo-900">BUFFER:</p>
                                     <p className="text-sm text-gray-700">
@@ -2541,7 +2541,7 @@ const FatteningCostSection = ({ fatteningParams, setFatteningParams, fatteningCo
 
     return (
         <div className="bg-white rounded-lg shadow-sm border p-6 space-y-6">
-            <h3 className="text-lg font-bold text-gray-800">💰 Fattening Cost Parameters</h3>
+            <h3 className="text-lg font-bold text-gray-800"> Fattening Cost Parameters</h3>
 
             {/* Monthly Operating Costs */}
             <div>
@@ -2550,7 +2550,7 @@ const FatteningCostSection = ({ fatteningParams, setFatteningParams, fatteningCo
                 </h4>
                 <div className="mb-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
                     <p className="text-sm text-blue-800">
-                        <strong>ℹ️ Info:</strong> Enter your total monthly budget for non-feed costs.
+                        <strong> Info:</strong> Enter your total monthly budget for non-feed costs.
                         Auto-calculated per-pig costs will show based on monthly throughput.
                     </p>
                 </div>
@@ -2621,7 +2621,7 @@ const FatteningCostSection = ({ fatteningParams, setFatteningParams, fatteningCo
             {monthlyThroughput > 0 && (
                 <div>
                     <h4 className="text-sm font-semibold text-gray-700 mb-3 bg-purple-50 px-3 py-2 rounded">
-                        📊 Auto-Calculated Unit Costs
+                         Auto-Calculated Unit Costs
                     </h4>
                     <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
                         <p className="text-sm text-gray-600 mb-3">
@@ -2741,7 +2741,7 @@ const BreedingSetup = ({ cohorts, setCohorts, addCohort, deleteCohort, updateCoh
         <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg shadow-sm border border-green-200 p-4">
             <div className="flex items-center justify-between">
                 <div>
-                    <h4 className="font-semibold text-green-800 mb-1">📅 {t.calculator.setup.calculationDate}</h4>
+                    <h4 className="font-semibold text-green-800 mb-1"> {t.calculator.setup.calculationDate}</h4>
                     <p className="text-xs text-green-600">{t.calculator.setup.calculationDateInfo}</p>
                 </div>
                 <div className="w-48">
@@ -2784,7 +2784,7 @@ const BreedingSetup = ({ cohorts, setCohorts, addCohort, deleteCohort, updateCoh
 
         {/* Farm Information */}
         <div className="bg-white rounded-lg shadow-sm border p-6">
-            <h2 className="text-xl font-bold text-gray-800 mb-4">🏢 {t.calculator.setup.farmInfo}</h2>
+            <h2 className="text-xl font-bold text-gray-800 mb-4"> {t.calculator.setup.farmInfo}</h2>
 
             {/* Farm Type Selection */}
             <div className="mb-6">
@@ -2850,7 +2850,7 @@ const BreedingSetup = ({ cohorts, setCohorts, addCohort, deleteCohort, updateCoh
         {/* PROGRESSIVE CULLING STRATEGY */}
         <div className="bg-gradient-to-r from-emerald-50 to-emerald-100 rounded-xl p-4 border border-emerald-200">
             <h3 className="font-bold text-emerald-800 mb-4">
-                🔄 {t.calculator.setup.progressiveCulling}
+                 {t.calculator.setup.progressiveCulling}
             </h3>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -2897,7 +2897,7 @@ const BreedingSetup = ({ cohorts, setCohorts, addCohort, deleteCohort, updateCoh
 
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mt-3">
                 <div className="text-xs text-blue-800">
-                    <strong>ℹ️ {t.calculator.setup.cullingInfo}</strong> {t.calculator.setup.cullingInfoText}
+                    <strong> {t.calculator.setup.cullingInfo}</strong> {t.calculator.setup.cullingInfoText}
                 </div>
             </div>
         </div>
@@ -2916,7 +2916,7 @@ const BreedingSetup = ({ cohorts, setCohorts, addCohort, deleteCohort, updateCoh
 
             {/* Info message explaining Cohort 0 */}
             <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg text-sm text-blue-800 flex items-start gap-2">
-                <span className="text-lg">ℹ️</span>
+                <span className="text-lg"></span>
                 <div>
                     <strong>{t.calculator.setup.cohortInfo}</strong> {t.calculator.setup.cohortInfoText}
                     <br />
@@ -2932,7 +2932,7 @@ const BreedingSetup = ({ cohorts, setCohorts, addCohort, deleteCohort, updateCoh
                                 <h3 className="font-semibold text-lg">{t.calculator.setup.cohortNumber}{idx + 1}</h3>
                                 {cohort.autoGenerated && (
                                     <span className="px-2 py-0.5 text-xs bg-indigo-100 text-indigo-700 rounded-full font-medium">
-                                        🔄 {t.calculator.setup.autoGenerated}
+                                         {t.calculator.setup.autoGenerated}
                                     </span>
                                 )}
                             </div>
@@ -2948,7 +2948,7 @@ const BreedingSetup = ({ cohorts, setCohorts, addCohort, deleteCohort, updateCoh
 
                         {cohort.autoGenerated && cohort.generationReason && (
                             <div className="mb-3 p-2 bg-blue-50 rounded-lg border border-blue-200 text-xs text-blue-700">
-                                <strong>📋 {t.calculator.setup.purpose}</strong> {cohort.generationReason}
+                                <strong> {t.calculator.setup.purpose}</strong> {cohort.generationReason}
                             </div>
                         )}
 
@@ -3018,13 +3018,13 @@ const BreedingSetup = ({ cohorts, setCohorts, addCohort, deleteCohort, updateCoh
         {/* Progressive Culling (Only show in Breeding Mode, hidden in Integrated as it has its own section) */}
         {/* Breeding Parameters - Year 1 vs Year 2+ */}
         <div className="bg-white rounded-lg shadow-sm border p-6">
-            <h3 className="text-lg font-bold text-gray-800 mb-4">⚙️ {t.calculator.setup.breedingParams}</h3>
+            <h3 className="text-lg font-bold text-gray-800 mb-4"> {t.calculator.setup.breedingParams}</h3>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                 {/* YEAR 1 PARAMETERS (Ramp-up period) */}
                 <div className="bg-gradient-to-br from-yellow-50 to-amber-50 rounded-lg p-4 border border-yellow-200">
                     <h4 className="text-sm font-bold text-yellow-800 mb-3 flex items-center gap-2">
-                        📊 {t.calculator.setup.year1Rampup}
+                         {t.calculator.setup.year1Rampup}
                     </h4>
                     <div className="space-y-3">
                         <div>
@@ -3063,7 +3063,7 @@ const BreedingSetup = ({ cohorts, setCohorts, addCohort, deleteCohort, updateCoh
                 {/* YEAR 2+ PARAMETERS (Full production) */}
                 <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg p-4 border border-green-200">
                     <h4 className="text-sm font-bold text-green-800 mb-3 flex items-center gap-2">
-                        ✅ {t.calculator.setup.year2FullProduction}
+                         {t.calculator.setup.year2FullProduction}
                     </h4>
                     <div className="space-y-3">
                         <div>
@@ -3103,7 +3103,7 @@ const BreedingSetup = ({ cohorts, setCohorts, addCohort, deleteCohort, updateCoh
             {/* PSY Preview (Auto-Calculated) */}
             <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-4 border border-blue-200">
                 <h4 className="text-sm font-bold text-blue-800 mb-3 flex items-center gap-2">
-                    📊 {t.calculator.setup.psyPreview}
+                     {t.calculator.setup.psyPreview}
                 </h4>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
                     <div>
@@ -3205,7 +3205,7 @@ const BarnManagementSection = ({
             <div className="flex justify-between items-center mb-4">
                 <div className="flex items-center gap-2">
                     <Factory size={20} className="text-orange-600" />
-                    <h2 className="text-xl font-bold text-gray-800">🏭 Barn / Cohort Management</h2>
+                    <h2 className="text-xl font-bold text-gray-800"> Barn / Cohort Management</h2>
                     <span className="text-xs bg-orange-100 text-orange-700 px-2 py-1 rounded-full font-semibold">
                         {fatteningBarns.length} Barn{fatteningBarns.length !== 1 ? 's' : ''}
                     </span>
@@ -3222,7 +3222,7 @@ const BarnManagementSection = ({
                 <>
                     <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
                         <p className="text-sm text-blue-800">
-                            <strong>ℹ️ Info:</strong> Manage individual barns/cohorts with staggered pig-in dates.
+                            <strong> Info:</strong> Manage individual barns/cohorts with staggered pig-in dates.
                             Each barn operates independently with its own production cycle and cost allocation.
                         </p>
                     </div>
@@ -3260,7 +3260,7 @@ const BarnManagementSection = ({
                                     : 'border-gray-200 hover:border-gray-300'
                                     }`}
                             >
-                                <div className="text-xs font-semibold">Biomass ⭐</div>
+                                <div className="text-xs font-semibold">Biomass </div>
                                 <div className="text-[10px] text-gray-500">Recommended</div>
                             </button>
                         </div>
@@ -3417,7 +3417,7 @@ const BarnManagementSection = ({
                                     {/* Per-Barn Exit Points */}
                                     <div className="mt-4 border-t pt-4">
                                         <div className="flex justify-between items-center mb-3">
-                                            <h4 className="text-sm font-semibold text-gray-700">🎯 Exit Points (Sales Strategy)</h4>
+                                            <h4 className="text-sm font-semibold text-gray-700"> Exit Points (Sales Strategy)</h4>
                                             <button
                                                 onClick={() => {
                                                     const newExitPoints = [...(barn.exitPoints || [])];
@@ -3537,7 +3537,7 @@ const BarnManagementSection = ({
                                                                      Feed: <strong>{feedPerPig.toFixed(1)}</strong> kg/pig
                                                                 </div>
                                                                 <div className="text-green-700">
-                                                                    💰 Revenue: <strong>{formatNumber(Math.round(revenuePerPig))}</strong> IDR/pig
+                                                                     Revenue: <strong>{formatNumber(Math.round(revenuePerPig))}</strong> IDR/pig
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -3556,7 +3556,7 @@ const BarnManagementSection = ({
                                                             ? 'bg-green-50 border border-green-200 text-green-700'
                                                             : 'bg-red-50 border border-red-200 text-red-700'
                                                             }`}>
-                                                            <strong>Total:</strong> {totalPct.toFixed(1)}% {isValid ? '✅' : '⚠️ Must equal 100%'}
+                                                            <strong>Total:</strong> {totalPct.toFixed(1)}% {isValid ? '' : ' Must equal 100%'}
                                                         </div>
                                                     );
                                                 })()}
@@ -3575,7 +3575,7 @@ const BarnManagementSection = ({
                     {fatteningBarns.length > 0 && (
                         <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
                             <div className="text-sm text-green-800">
-                                <strong>✅ Total Capacity:</strong> {fatteningBarns.reduce((sum, b) => sum + b.population, 0)} heads across {fatteningBarns.length} barn{fatteningBarns.length !== 1 ? 's' : ''}
+                                <strong> Total Capacity:</strong> {fatteningBarns.reduce((sum, b) => sum + b.population, 0)} heads across {fatteningBarns.length} barn{fatteningBarns.length !== 1 ? 's' : ''}
                             </div>
                         </div>
                     )}
@@ -3611,13 +3611,13 @@ const FatteningSetup = ({
         />
 
         <div className="bg-white rounded-lg shadow-sm border p-6">
-            <h2 className="text-xl font-bold text-gray-800 mb-4">🥩 Fattening Parameters</h2>
+            <h2 className="text-xl font-bold text-gray-800 mb-4"> Fattening Parameters</h2>
 
             {/* Info message when barns exist */}
             {fatteningBarns.length > 0 && (
                 <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
                     <p className="text-sm text-blue-800">
-                        <strong>ℹ️ Barn Mode Active:</strong> Piglet purchases are managed per-barn. Total capacity: <strong>{fatteningBarns.reduce((sum, b) => sum + b.population, 0)} heads</strong> across {fatteningBarns.length} barn{fatteningBarns.length !== 1 ? 's' : ''}.
+                        <strong> Barn Mode Active:</strong> Piglet purchases are managed per-barn. Total capacity: <strong>{fatteningBarns.reduce((sum, b) => sum + b.population, 0)} heads</strong> across {fatteningBarns.length} barn{fatteningBarns.length !== 1 ? 's' : ''}.
                     </p>
                 </div>
             )}
@@ -3757,7 +3757,7 @@ const MultiExitStrategy = ({
 
             <div className={`p-3 rounded-lg border ${theme.border} ${theme.bg}`}>
                 <p className={`text-sm ${theme.text}`}>
-                    <strong>ℹ️ Info:</strong> Define multiple exit points. Total percentage must equal 100%.
+                    <strong> Info:</strong> Define multiple exit points. Total percentage must equal 100%.
                 </p>
             </div>
 
@@ -3893,7 +3893,7 @@ const MultiExitStrategy = ({
                 <div className="flex justify-between items-center text-sm">
                     <span>Total % Allocated:</span>
                     <span className={`font-bold ${isValid ? 'text-green-600' : 'text-red-600'}`}>
-                        {totalPercentage.toFixed(1)}% {isValid ? '✓' : '✗ Must be 100%'}
+                        {totalPercentage.toFixed(1)}% {isValid ? '' : ' Must be 100%'}
                     </span>
                 </div>
             </div>
@@ -3998,7 +3998,7 @@ const IntegratedSetup = ({
             <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg shadow-sm border border-green-200 p-4">
                 <div className="flex items-center justify-between">
                     <div>
-                        <h4 className="font-semibold text-green-800 mb-1">📅 {t.calculator.setup.calculationDate}</h4>
+                        <h4 className="font-semibold text-green-800 mb-1"> {t.calculator.setup.calculationDate}</h4>
                         <p className="text-xs text-green-600">{t.calculator.setup.calculationDateInfo}</p>
                     </div>
                     <div className="w-48">
@@ -4049,7 +4049,7 @@ const IntegratedSetup = ({
                 <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-200 mb-4">
                     <div className="flex items-center justify-between">
                         <div>
-                            <h5 className="font-bold text-blue-800 mb-1">🏭 Farm Type</h5>
+                            <h5 className="font-bold text-blue-800 mb-1"> Farm Type</h5>
                             <p className="text-xs text-blue-600">
                                 {integratedInputs.isNewFarm
                                     ? "New farm - Build population using cohorts below"
@@ -4126,7 +4126,7 @@ const IntegratedSetup = ({
 
                 {/* Info message explaining Cohort 0 */}
                 <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg text-sm text-blue-800 flex items-start gap-2">
-                    <span className="text-lg">ℹ️</span>
+                    <span className="text-lg"></span>
                     <div>
                         <strong>Cohort 0 (Initial Stock)</strong> is automatically created from the "Current Population" field above and is immediately active in Month 0.
                         <br />
@@ -4142,7 +4142,7 @@ const IntegratedSetup = ({
                                     <h3 className="font-semibold text-lg">Cohort #{idx + 1}</h3>
                                     {cohort.autoGenerated && (
                                         <span className="px-2 py-0.5 text-xs bg-indigo-100 text-indigo-700 rounded-full font-medium">
-                                            🔄 Auto-Generated
+                                             Auto-Generated
                                         </span>
                                     )}
                                 </div>
@@ -4158,7 +4158,7 @@ const IntegratedSetup = ({
 
                             {cohort.autoGenerated && cohort.generationReason && (
                                 <div className="mb-3 p-2 bg-blue-50 rounded-lg border border-blue-200 text-xs text-blue-700">
-                                    <strong>📋 Purpose:</strong> {cohort.generationReason}
+                                    <strong> Purpose:</strong> {cohort.generationReason}
                                 </div>
                             )}
 
@@ -4228,7 +4228,7 @@ const IntegratedSetup = ({
             {/* PROGRESSIVE CULLING STRATEGY */}
             <div className="bg-gradient-to-r from-emerald-50 to-emerald-100 rounded-xl p-4 border border-emerald-200 mb-6">
                 <h3 className="font-bold text-emerald-800 mb-4">
-                    🔄 Progressive Culling & Replacement Strategy
+                     Progressive Culling & Replacement Strategy
                 </h3>
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -4259,7 +4259,7 @@ const IntegratedSetup = ({
 
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mt-3">
                     <div className="text-xs text-blue-800">
-                        <strong>ℹ️ How it works:</strong> Replacement gilts added monthly based on culling.
+                        <strong> How it works:</strong> Replacement gilts added monthly based on culling.
                         Monthly rate = (Annual Culling % × Cohort Population) ÷ 12.
                     </div>
                 </div>
@@ -4267,13 +4267,13 @@ const IntegratedSetup = ({
 
             {/* BREEDING PARAMETERS - YEAR 1 vs YEAR 2+ */}
             <div className="bg-white rounded-lg shadow-sm border p-6">
-                <h3 className="text-lg font-bold text-gray-800 mb-4">⚙️ Breeding Parameters (Year 1 vs Year 2+)</h3>
+                <h3 className="text-lg font-bold text-gray-800 mb-4"> Breeding Parameters (Year 1 vs Year 2+)</h3>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                     {/* YEAR 1 PARAMETERS (Ramp-up period) */}
                     <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
                         <h4 className="font-semibold text-yellow-800 mb-3 flex items-center gap-2">
-                            <span>📅</span> Year 1 (Ramp-up)
+                            <span></span> Year 1 (Ramp-up)
                         </h4>
                         <div className="space-y-3">
                             <div>
@@ -4325,7 +4325,7 @@ const IntegratedSetup = ({
                     {/* YEAR 2+ PARAMETERS (Stable/Full Production) */}
                     <div className="bg-green-50 p-4 rounded-lg border border-green-200">
                         <h4 className="font-semibold text-green-800 mb-3 flex items-center gap-2">
-                            <span>✅</span> Year 2+ (Full Production)
+                            <span></span> Year 2+ (Full Production)
                         </h4>
                         <div className="space-y-3">
                             <div>
@@ -4377,7 +4377,7 @@ const IntegratedSetup = ({
 
                 {/* PSY PREVIEW - Auto Calculated */}
                 <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-                    <h4 className="font-semibold text-blue-800 mb-3">📊 PSY Preview (Auto-Calculated)</h4>
+                    <h4 className="font-semibold text-blue-800 mb-3"> PSY Preview (Auto-Calculated)</h4>
                     {(() => {
                         const gestationDays = integratedInputs.gestationDays || 116;
                         const lactationDays = integratedInputs.lactationDays || 24;
@@ -4439,7 +4439,7 @@ const IntegratedSetup = ({
             {/* NEW: BIOLOGICAL CYCLE PARAMETERS */}
             <div className="bg-gradient-to-r from-pink-50 to-pink-100 rounded-xl p-4 border border-pink-200">
                 <h3 className="font-bold text-pink-800 mb-4 flex items-center gap-2">
-                    🔬 BIOLOGICAL CYCLE PARAMETERS (Days)
+                     BIOLOGICAL CYCLE PARAMETERS (Days)
                 </h3>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
@@ -4489,7 +4489,7 @@ const IntegratedSetup = ({
             {/* MATING MANAGEMENT SYSTEM */}
             <div className="bg-gradient-to-r from-purple-50 to-purple-100 rounded-xl p-4 border border-purple-200">
                 <h3 className="font-bold text-purple-800 mb-4">
-                    💕 MATING MANAGEMENT SYSTEM
+                     MATING MANAGEMENT SYSTEM
                 </h3>
 
                 {/* System Selection Cards */}
@@ -4499,7 +4499,7 @@ const IntegratedSetup = ({
                         ? 'border-purple-500 bg-purple-50'
                         : 'border-gray-200 bg-white'
                         }`} onClick={() => setIntegratedInputs(p => ({ ...p, matingSystem: 'batch' }))}>
-                        <div className="font-bold text-purple-800">📦 BATCH MATING</div>
+                        <div className="font-bold text-purple-800"> BATCH MATING</div>
                         <div className="text-xs text-gray-600 mt-1">
                             Sows grouped into batches. All batch members mated on same day.
                         </div>
@@ -4510,7 +4510,7 @@ const IntegratedSetup = ({
                         ? 'border-green-500 bg-green-50'
                         : 'border-gray-200 bg-white'
                         }`} onClick={() => setIntegratedInputs(p => ({ ...p, matingSystem: 'weekly' }))}>
-                        <div className="font-bold text-green-800">📅 WEEKLY MATING</div>
+                        <div className="font-bold text-green-800"> WEEKLY MATING</div>
                         <div className="text-xs text-gray-600 mt-1">
                             Continuous flow. Sows mated every week for smooth production.
                         </div>
@@ -4577,14 +4577,14 @@ const IntegratedSetup = ({
             {/* PIGLET ALLOCATION STRATEGY */}
             <div className="bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl p-5 border border-blue-200">
                 <h3 className="font-bold text-blue-800 mb-4 text-lg border-b border-blue-200 pb-2">
-                    📊 PIGLET ALLOCATION STRATEGY
+                     PIGLET ALLOCATION STRATEGY
                 </h3>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     {/* Nursery Allocation */}
                     <div className="bg-white rounded-lg p-5 border-2 border-purple-200 shadow-sm">
                         <div className="flex items-center gap-3 mb-4">
-                            <span className="text-3xl">🐖</span>
+                            <span className="text-3xl"></span>
                             <div>
                                 <div className="font-bold text-purple-700 text-lg">Nursery Program</div>
                                 <div className="text-xs text-gray-500">Sell as weaners/piglets</div>
@@ -4646,7 +4646,7 @@ const IntegratedSetup = ({
                     {/* Fattening Allocation */}
                     <div className="bg-white rounded-lg p-5 border-2 border-orange-200 shadow-sm">
                         <div className="flex items-center gap-3 mb-4">
-                            <span className="text-3xl">🥩</span>
+                            <span className="text-3xl"></span>
                             <div>
                                 <div className="font-bold text-orange-700 text-lg">Fattening Program</div>
                                 <div className="text-xs text-gray-500">Grow to finish</div>
@@ -4713,7 +4713,7 @@ const IntegratedSetup = ({
                 ? 'bg-green-100 text-green-800'
                 : 'bg-red-100 text-red-800'
                 }`}>
-                Total Allocation: 100% {Math.abs(integratedInputs.nurseryAllocationPercent + (1 - integratedInputs.nurseryAllocationPercent) - 1.0) < 0.001 ? '✓' : '✗'}
+                Total Allocation: 100% {Math.abs(integratedInputs.nurseryAllocationPercent + (1 - integratedInputs.nurseryAllocationPercent) - 1.0) < 0.001 ? '' : ''}
             </div>
 
             {/* NURSERY PROGRAM STRATEGY */}
@@ -4721,7 +4721,7 @@ const IntegratedSetup = ({
                 integratedInputs.nurseryAllocationPercent > 0 && (
                     <MultiExitStrategy
                         title="Nursery Sales Strategy"
-                        icon="🐖"
+                        icon=""
                         colorTheme="purple"
                         exitPoints={nurseryExitPoints}
                         setExitPoints={setNurseryExitPoints}
@@ -4745,7 +4745,7 @@ const IntegratedSetup = ({
                 (1 - integratedInputs.nurseryAllocationPercent) > 0 && (
                     <MultiExitStrategy
                         title="Fattening Sales Strategy"
-                        icon="🥩"
+                        icon=""
                         colorTheme="orange"
                         exitPoints={fatteningExitPoints}
                         setExitPoints={setFatteningExitPoints}
@@ -4769,7 +4769,7 @@ const IntegratedSetup = ({
                     onClick={() => {
                         const btn = document.getElementById('save-calc-btn');
                         if (btn) {
-                            btn.innerHTML = '⚙️ Calculating...';
+                            btn.innerHTML = ' Calculating...';
                             btn.classList.add('opacity-75', 'cursor-wait');
                         }
                         setTimeout(() => {
@@ -4779,7 +4779,7 @@ const IntegratedSetup = ({
                     id="save-calc-btn"
                     className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg shadow-md flex items-center gap-2 transition-all transform hover:scale-105"
                 >
-                    <span>💾 Save & Calculate</span>
+                    <span> Save & Calculate</span>
                 </button>
             </div>
         </div >
@@ -4791,7 +4791,7 @@ const IntegratedSetup = ({
 const BiologicalTimelineExample = () => (
     <div className="bg-gradient-to-r from-pink-50 to-purple-50 rounded-lg p-4 border border-pink-100 mb-6 no-print">
         <h4 className="font-bold text-pink-800 mb-2 text-sm flex items-center gap-2">
-            🧬 Biological Cycle Example (Day-Level)
+             Biological Cycle Example (Day-Level)
         </h4>
         <div className="flex items-center gap-2 text-xs overflow-x-auto pb-2">
             <div className="flex flex-col items-center min-w-[80px]">
@@ -4833,7 +4833,7 @@ const MatingCohortTracker = ({ dailyEvents }) => {
         <div className="bg-white rounded-lg shadow-sm border mt-6 overflow-hidden no-print">
             <div className="bg-gradient-to-r from-pink-500 to-rose-500 text-white px-4 py-3 flex justify-between items-center">
                 <span className="font-semibold flex items-center gap-2">
-                    ❤️ Mating Cohort Tracker
+                     Mating Cohort Tracker
                 </span>
                 <span className="text-xs bg-white/20 px-2 py-1 rounded">
                     Trace Biological Cycles
@@ -4878,7 +4878,7 @@ const MatingCohortTracker = ({ dailyEvents }) => {
             <div className="bg-gray-50 p-2 text-xs text-center text-gray-500 border-t flex justify-between items-center">
                 <span>Showing {events.length} scheduled mating events.</span>
                 {events.length === 0 && (
-                    <span className="text-orange-600 font-bold">⚠️ No events? Add Gilts in 'Manual Cohorts' above!</span>
+                    <span className="text-orange-600 font-bold"> No events? Add Gilts in 'Manual Cohorts' above!</span>
                 )}
             </div>
         </div>
@@ -4952,17 +4952,17 @@ const ProductionTimeline = ({ mode, MODES, projection, formatNumber, fatteningBa
 
                 return (
                     <div className="bg-white rounded-lg shadow-sm border p-6">
-                        <h3 className="text-lg font-bold text-gray-800 mb-4">🏭 Barn Status Dashboard</h3>
+                        <h3 className="text-lg font-bold text-gray-800 mb-4"> Barn Status Dashboard</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                             {projection.barnResults.map((barn) => {
                                 const statusInfo = getBarnStatus(barn, today);
 
                                 // Status colors and icons
                                 const statusConfig = {
-                                    notStarted: { bg: 'bg-gray-100', border: 'border-gray-300', text: 'text-gray-700', icon: '🕒', label: 'Not Started' },
-                                    growing: { bg: 'bg-green-50', border: 'border-green-300', text: 'text-green-700', icon: '🌱', label: 'Growing' },
-                                    cleaning: { bg: 'bg-yellow-50', border: 'border-yellow-300', text: 'text-yellow-700', icon: '🧹', label: 'Cleaning' },
-                                    readyForNextBatch: { bg: 'bg-blue-50', border: 'border-blue-300', text: 'text-blue-700', icon: '✅', label: 'Ready' },
+                                    notStarted: { bg: 'bg-gray-100', border: 'border-gray-300', text: 'text-gray-700', icon: '', label: 'Not Started' },
+                                    growing: { bg: 'bg-green-50', border: 'border-green-300', text: 'text-green-700', icon: '', label: 'Growing' },
+                                    cleaning: { bg: 'bg-yellow-50', border: 'border-yellow-300', text: 'text-yellow-700', icon: '', label: 'Cleaning' },
+                                    readyForNextBatch: { bg: 'bg-blue-50', border: 'border-blue-300', text: 'text-blue-700', icon: '', label: 'Ready' },
                                 };
 
                                 const config = statusConfig[statusInfo.status] || statusConfig.notStarted;
@@ -4984,14 +4984,14 @@ const ProductionTimeline = ({ mode, MODES, projection, formatNumber, fatteningBa
 
                                             {statusInfo.status === 'notStarted' && (
                                                 <div className="text-gray-600">
-                                                    📅 Starts in: <strong>{statusInfo.daysRemaining} days</strong>
+                                                     Starts in: <strong>{statusInfo.daysRemaining} days</strong>
                                                 </div>
                                             )}
 
                                             {statusInfo.status === 'growing' && (
                                                 <>
                                                     <div className="text-gray-600">
-                                                        📆 Day: <strong>{statusInfo.dayInCycle} / {statusInfo.totalDays}</strong>
+                                                         Day: <strong>{statusInfo.dayInCycle} / {statusInfo.totalDays}</strong>
                                                     </div>
                                                     <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
                                                         <div
@@ -5003,7 +5003,7 @@ const ProductionTimeline = ({ mode, MODES, projection, formatNumber, fatteningBa
                                                         {statusInfo.progressPercent.toFixed(0)}% complete
                                                     </div>
                                                     <div className="text-gray-600">
-                                                        📅 Pig-Out: <strong>{barn.pigOutDate}</strong>
+                                                         Pig-Out: <strong>{barn.pigOutDate}</strong>
                                                     </div>
                                                 </>
                                             )}
@@ -5011,17 +5011,17 @@ const ProductionTimeline = ({ mode, MODES, projection, formatNumber, fatteningBa
                                             {statusInfo.status === 'cleaning' && (
                                                 <>
                                                     <div className="text-gray-600">
-                                                        🧹 Cleaning: <strong>{statusInfo.daysRemaining} days left</strong>
+                                                         Cleaning: <strong>{statusInfo.daysRemaining} days left</strong>
                                                     </div>
                                                     <div className="text-gray-600">
-                                                        📅 Next Batch: <strong>{barn.nextBatchDate}</strong>
+                                                         Next Batch: <strong>{barn.nextBatchDate}</strong>
                                                     </div>
                                                 </>
                                             )}
 
                                             {statusInfo.status === 'readyForNextBatch' && (
                                                 <div className="text-gray-600">
-                                                    ✅ Available for new batch
+                                                     Available for new batch
                                                 </div>
                                             )}
                                         </div>
@@ -5036,7 +5036,7 @@ const ProductionTimeline = ({ mode, MODES, projection, formatNumber, fatteningBa
             {/* Barn/Cohort Summary Table (only in barn mode) */}
             {mode === MODES.FATTENING && projection.isBarnMode && projection.barnResults && (
                 <div className="bg-white rounded-lg shadow-sm border p-6">
-                    <h3 className="text-lg font-bold text-gray-800 mb-4">🏭 Barn / Cohort Summary</h3>
+                    <h3 className="text-lg font-bold text-gray-800 mb-4"> Barn / Cohort Summary</h3>
                     <div className="overflow-x-auto">
                         <table className="min-w-full divide-y divide-gray-200">
                             <thead className="bg-gray-50">
@@ -5224,7 +5224,7 @@ const ProductionTimeline = ({ mode, MODES, projection, formatNumber, fatteningBa
                         {/* Production Summary Boxes with Period Filter */}
                         <div className="bg-white rounded-lg shadow-sm border p-6 mb-6">
                             <div className="flex justify-between items-center mb-4">
-                                <h3 className="text-lg font-bold text-gray-800">📊 Production Summary</h3>
+                                <h3 className="text-lg font-bold text-gray-800"> Production Summary</h3>
                                 <div className="flex items-center gap-2">
                                     <label className="text-sm font-medium text-gray-700">Period:</label>
                                     <select
@@ -5268,7 +5268,7 @@ const ProductionTimeline = ({ mode, MODES, projection, formatNumber, fatteningBa
                         {/* Production Schedule Table */}
                         <div className="bg-white rounded-lg shadow-sm border p-6">
                             <div className="flex justify-between items-center mb-4">
-                                <h3 className="text-lg font-bold text-gray-800">📅 PRODUCTION SCHEDULE (Forecasting)</h3>
+                                <h3 className="text-lg font-bold text-gray-800"> PRODUCTION SCHEDULE (Forecasting)</h3>
                                 <div className="text-sm text-gray-600">
                                     Showing: <strong>{sortedCohorts.length}</strong> of <strong>{futureCohorts.length}</strong> cohorts
                                 </div>
@@ -5402,7 +5402,7 @@ const ProductionTimeline = ({ mode, MODES, projection, formatNumber, fatteningBa
                                                 rows.push(
                                                     <tr key={`year-${year}`} className="bg-blue-50 font-semibold border-t-2 border-blue-200">
                                                         <td className="px-3 py-2 text-sm text-gray-900" colSpan="2">
-                                                            📊 {year} TOTAL ({dateLabel})
+                                                             {year} TOTAL ({dateLabel})
                                                         </td>
                                                         <td className="px-3 py-2 text-sm text-right text-gray-900">{formatNumber(yearTotalPopulation)}</td>
                                                         <td className="px-3 py-2" colSpan="5"></td>
@@ -5427,7 +5427,7 @@ const ProductionTimeline = ({ mode, MODES, projection, formatNumber, fatteningBa
                 <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
                     <div className="bg-gradient-to-r from-green-600 to-emerald-600 text-white px-4 py-3 flex items-center justify-between">
                         <span className="font-semibold">
-                            📊 {t.calculator.production.title}
+                             {t.calculator.production.title}
                         </span>
                         <div className="flex items-center gap-2 no-print">
                             <label className="text-xs text-white/90">{t.calculator.production.filter}</label>
@@ -5620,7 +5620,7 @@ const FinancialTimeline = ({ mode, MODES, projection, formatNumber, formatCurren
             {/* Barn Costing Table (only in barn mode) */}
             {mode === MODES.FATTENING && projection.isBarnMode && projection.barnResults && (
                 <div className="bg-white rounded-lg shadow-sm border p-6">
-                    <h3 className="text-lg font-bold text-gray-800 mb-4">📊 Barn / Cohort Costing Analysis</h3>
+                    <h3 className="text-lg font-bold text-gray-800 mb-4"> Barn / Cohort Costing Analysis</h3>
                     <div className="overflow-x-auto">
                         <table className="min-w-full divide-y divide-gray-200">
                             <thead className="bg-gray-50">
@@ -5678,7 +5678,7 @@ const FinancialTimeline = ({ mode, MODES, projection, formatNumber, formatCurren
             {/* Comparative Barn Performance Table (only in barn mode) */}
             {mode === MODES.FATTENING && projection.isBarnMode && projection.barnResults && (
                 <div className="bg-white rounded-lg shadow-sm border p-6">
-                    <h3 className="text-lg font-bold text-gray-800 mb-4">🏆 Comparative Barn Performance</h3>
+                    <h3 className="text-lg font-bold text-gray-800 mb-4"> Comparative Barn Performance</h3>
                     <div className="overflow-x-auto">
                         <table className="min-w-full divide-y divide-gray-200">
                             <thead className="bg-gray-50">
@@ -5803,7 +5803,7 @@ const FinancialTimeline = ({ mode, MODES, projection, formatNumber, formatCurren
                 <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
                     <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-4 py-3 flex items-center justify-between">
                         <span className="font-semibold">
-                            💰 {t.calculator.financial.title} ({currency} {t.calculator.financial.million})
+                             {t.calculator.financial.title} ({currency} {t.calculator.financial.million})
                         </span>
                         <div className="flex items-center gap-2 no-print">
                             <label className="text-xs text-white/90">{t.calculator.financial.filter}</label>
@@ -6339,7 +6339,7 @@ const SummaryTab = ({ projection, formatCurrency, formatNumber }) => {
 
             {/* Production Summary */}
             <div className="bg-white rounded-lg shadow-sm border p-6">
-                <h3 className="text-lg font-bold text-gray-800 mb-4">📊 Production Summary</h3>
+                <h3 className="text-lg font-bold text-gray-800 mb-4"> Production Summary</h3>
                 <div className="grid grid-cols-2 gap-4">
                     {/* Total Piglets Weaned */}
                     <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-4 border border-blue-200">
@@ -6830,7 +6830,7 @@ export default function PigFarmCalculator({ onBack }) { // onBack prop added
             };
 
             // Debug: Verify allocations are 0
-            console.log('🔍 BREEDING MODE SETUP:', {
+            console.log(' BREEDING MODE SETUP:', {
                 nurseryAlloc: breedingInputs.nurseryAllocationPercent,
                 fatteningAlloc: breedingInputs.fatteningAllocationPercent,
                 weanerPrice: mergedParams.breeding.weanerPrice
@@ -7138,8 +7138,8 @@ export default function PigFarmCalculator({ onBack }) { // onBack prop added
                             </h1>
                             <p className="text-blue-200 text-sm mt-1 ml-12">
                                 {mode === MODES.BREEDING ? ' Breeding Mode' :
-                                    mode === MODES.FATTENING ? '🥩 Fattening Mode' :
-                                        '🔗 Integrated Mode'}
+                                    mode === MODES.FATTENING ? ' Fattening Mode' :
+                                        ' Integrated Mode'}
                             </p>
                         </div>
                         <button
