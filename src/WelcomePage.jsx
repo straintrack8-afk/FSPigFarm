@@ -71,7 +71,7 @@ export default function WelcomePage({ onSelectMode }) {
     const t = welcomeTranslations[language];
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex flex-col items-center py-6 sm:py-12 p-4 relative">
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex flex-col items-center py-6 sm:py-12 p-4 relative pb-12 sm:pb-16">
             {/* Language and Currency Selector - Top Right */}
             <div className="absolute top-6 right-6 flex items-center gap-3">
                 {/* Language Selector */}
@@ -103,7 +103,7 @@ export default function WelcomePage({ onSelectMode }) {
                 </div>
             </div>
 
-            <div className="max-w-4xl w-full mt-16 sm:mt-12 mb-auto flex-grow flex flex-col justify-center">
+            <div className="max-w-4xl w-full mt-20 sm:mt-16 mb-auto flex-grow flex flex-col justify-center">
                 <div className="text-center mb-8 px-2">
                     <h1 className="text-2xl sm:text-4xl md:text-5xl font-extrabold text-slate-800 mb-3 sm:mb-4 tracking-tight leading-tight">
                         {t.title}
@@ -113,7 +113,7 @@ export default function WelcomePage({ onSelectMode }) {
                     </p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 px-2 sm:px-0 flex-grow">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 px-2 sm:px-0 flex-grow mb-6 sm:mb-8">
                     {/* Option 1: No CAPEX (Production Calculator) */}
                     <button
                         onClick={() => onSelectMode('production')}
@@ -165,7 +165,7 @@ export default function WelcomePage({ onSelectMode }) {
                     </button>
                 </div>
 
-                <div className="mt-8 text-center text-slate-400 text-xs sm:text-sm pb-4">
+                <div className="mt-8 sm:mt-12 text-center text-slate-400 text-xs sm:text-sm pt-4 border-t border-slate-200/60 pb-8 sm:pb-0">
                     {t.footer}
                 </div>
             </div>
