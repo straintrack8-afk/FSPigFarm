@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Save, FileDown, Trash2, Copy, Plus, X, Calendar, TrendingUp, DollarSign, PieChart, Settings, BarChart, Factory, ArrowRight, PiggyBank, ArrowLeft, ChevronDown, ChevronUp, Info, Zap, CheckCircle } from 'lucide-react';
 import { calculateFatteningBarnMode, getBarnStatus, generateFutureCohorts, createMonthlySchedule, calculateCohortBasedCashFlow } from './fatteningBarnCalculations';
 import { formatCurrency as formatCurrencyWithSymbol, formatCurrencyMillion, getCurrencySymbol, convertCurrency } from './currencyUtils';
@@ -2529,7 +2529,7 @@ const CostReferenceGuide = ({ t }) => {
     );
 };
 
-const FatteningCostSection = ({ fatteningParams, setFatteningParams, fatteningCostParams, setFatteningCostParams, formatNumber, currency }) => {
+const FatteningCostSection = ({ fatteningParams, setFatteningParams, fatteningCostParams, setFatteningCostParams, formatNumber, currency, t }) => {
     const monthlyThroughput = fatteningParams.monthlyPigletPurchase;
 
     const autoCalcCosts = {
@@ -2541,23 +2541,22 @@ const FatteningCostSection = ({ fatteningParams, setFatteningParams, fatteningCo
 
     return (
         <div className="bg-white rounded-lg shadow-sm border p-6 space-y-6">
-            <h3 className="text-lg font-bold text-gray-800"> Fattening Cost Parameters</h3>
+            <h3 className="text-lg font-bold text-gray-800">{t.calculator.fatteningCostParams.title}</h3>
 
             {/* Monthly Operating Costs */}
             <div>
                 <h4 className="text-sm font-semibold text-gray-700 mb-3 bg-orange-50 px-3 py-2 rounded">
-                    Monthly Operating Costs (Total for Whole Farm)
+                    {t.calculator.fatteningCostParams.monthlyOperatingCosts}
                 </h4>
                 <div className="mb-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
                     <p className="text-sm text-blue-800">
-                        <strong> Info:</strong> Enter your total monthly budget for non-feed costs.
-                        Auto-calculated per-pig costs will show based on monthly throughput.
+                        <strong>{t.calculator.fatteningCostParams.info}</strong> {t.calculator.fatteningCostParams.budgetInfo}
                     </p>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
-                            AHP per Month ({currency})
+                            {t.calculator.fatteningCostParams.ahpPerMonth} ({currency})
                         </label>
                         <input
                             type="number"
@@ -2567,12 +2566,12 @@ const FatteningCostSection = ({ fatteningParams, setFatteningParams, fatteningCo
                             }))}
                             className="w-full px-3 py-2 border rounded-lg"
                         />
-                        <p className="text-xs text-gray-500 mt-1">Medicine, vaccines, supplements</p>
+                        <p className="text-xs text-gray-500 mt-1">{t.calculator.fatteningCostParams.medicineVaccines}</p>
                     </div>
 
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Labor per Month ({currency})
+                            {t.calculator.fatteningCostParams.laborPerMonth} ({currency})
                         </label>
                         <input
                             type="number"
@@ -2582,12 +2581,12 @@ const FatteningCostSection = ({ fatteningParams, setFatteningParams, fatteningCo
                             }))}
                             className="w-full px-3 py-2 border rounded-lg"
                         />
-                        <p className="text-xs text-gray-500 mt-1">Workers, salaries, benefits</p>
+                        <p className="text-xs text-gray-500 mt-1">{t.calculator.fatteningCostParams.workersSalaries}</p>
                     </div>
 
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Overhead per Month ({currency})
+                            {t.calculator.fatteningCostParams.overheadPerMonth} ({currency})
                         </label>
                         <input
                             type="number"
@@ -2597,12 +2596,12 @@ const FatteningCostSection = ({ fatteningParams, setFatteningParams, fatteningCo
                             }))}
                             className="w-full px-3 py-2 border rounded-lg"
                         />
-                        <p className="text-xs text-gray-500 mt-1">Management, admin, insurance</p>
+                        <p className="text-xs text-gray-500 mt-1">{t.calculator.fatteningCostParams.managementAdmin}</p>
                     </div>
 
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Utilities per Month ({currency})
+                            {t.calculator.fatteningCostParams.utilitiesPerMonth} ({currency})
                         </label>
                         <input
                             type="number"
@@ -2612,7 +2611,7 @@ const FatteningCostSection = ({ fatteningParams, setFatteningParams, fatteningCo
                             }))}
                             className="w-full px-3 py-2 border rounded-lg"
                         />
-                        <p className="text-xs text-gray-500 mt-1">Electricity, water, gas</p>
+                        <p className="text-xs text-gray-500 mt-1">{t.calculator.fatteningCostParams.electricityWater}</p>
                     </div>
                 </div>
             </div>
@@ -2621,27 +2620,27 @@ const FatteningCostSection = ({ fatteningParams, setFatteningParams, fatteningCo
             {monthlyThroughput > 0 && (
                 <div>
                     <h4 className="text-sm font-semibold text-gray-700 mb-3 bg-purple-50 px-3 py-2 rounded">
-                         Auto-Calculated Unit Costs
+                        {t.calculator.fatteningCostParams.autoCalculatedUnitCosts}
                     </h4>
                     <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
                         <p className="text-sm text-gray-600 mb-3">
-                            Based on <strong>{formatNumber(monthlyThroughput)} pigs/month</strong> throughput
+                            {t.calculator.fatteningCostParams.basedOn} <strong>{formatNumber(monthlyThroughput)} {t.calculator.fatteningCostParams.pigsPerMonth}</strong> {t.calculator.fatteningCostParams.throughput}
                         </p>
                         <div className="grid grid-cols-2 gap-3 text-sm">
                             <div className="flex justify-between">
-                                <span className="text-gray-600">• AHP per Pig:</span>
+                                <span className="text-gray-600">• {t.calculator.fatteningCostParams.ahpPerPigLabel}</span>
                                 <span className="font-semibold">{formatNumber(autoCalcCosts.ahpPerPig, 0)} {currency}</span>
                             </div>
                             <div className="flex justify-between">
-                                <span className="text-gray-600">• Labor per Pig:</span>
+                                <span className="text-gray-600">• {t.calculator.fatteningCostParams.laborPerPigLabel}</span>
                                 <span className="font-semibold">{formatNumber(autoCalcCosts.laborPerPig, 0)} {currency}</span>
                             </div>
                             <div className="flex justify-between">
-                                <span className="text-gray-600">• Overhead per Pig:</span>
+                                <span className="text-gray-600">• {t.calculator.fatteningCostParams.overheadPerPigLabel}</span>
                                 <span className="font-semibold">{formatNumber(autoCalcCosts.overheadPerPig, 0)} {currency}</span>
                             </div>
                             <div className="flex justify-between">
-                                <span className="text-gray-600">• Utilities per Pig:</span>
+                                <span className="text-gray-600">• {t.calculator.fatteningCostParams.utilitiesPerPigLabel}</span>
                                 <span className="font-semibold">{formatNumber(autoCalcCosts.utilitiesPerPig, 0)} {currency}</span>
                             </div>
                         </div>
@@ -2652,11 +2651,11 @@ const FatteningCostSection = ({ fatteningParams, setFatteningParams, fatteningCo
             {/* Escalation Rates */}
             <div>
                 <h4 className="text-sm font-semibold text-gray-700 mb-3 bg-amber-50 px-3 py-2 rounded">
-                    Annual Cost Escalation (%)
+                    {t.calculator.fatteningCostParams.annualEscalation}
                 </h4>
                 <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
                     <div>
-                        <label className="block text-xs font-medium text-gray-700 mb-1">Weaner</label>
+                        <label className="block text-xs font-medium text-gray-700 mb-1">{t.calculator.fatteningCostParams.weaner}</label>
                         <input
                             type="number"
                             value={fatteningCostParams.weanerEscalation * 100}
@@ -2668,7 +2667,7 @@ const FatteningCostSection = ({ fatteningParams, setFatteningParams, fatteningCo
                         />
                     </div>
                     <div>
-                        <label className="block text-xs font-medium text-gray-700 mb-1">Feed</label>
+                        <label className="block text-xs font-medium text-gray-700 mb-1">{t.calculator.fatteningCostParams.feed}</label>
                         <input
                             type="number"
                             value={fatteningCostParams.feedEscalation * 100}
@@ -2680,7 +2679,7 @@ const FatteningCostSection = ({ fatteningParams, setFatteningParams, fatteningCo
                         />
                     </div>
                     <div>
-                        <label className="block text-xs font-medium text-gray-700 mb-1">AHP</label>
+                        <label className="block text-xs font-medium text-gray-700 mb-1">{t.calculator.fatteningCostParams.ahp}</label>
                         <input
                             type="number"
                             value={fatteningCostParams.ahpEscalation * 100}
@@ -2692,7 +2691,7 @@ const FatteningCostSection = ({ fatteningParams, setFatteningParams, fatteningCo
                         />
                     </div>
                     <div>
-                        <label className="block text-xs font-medium text-gray-700 mb-1">Labor</label>
+                        <label className="block text-xs font-medium text-gray-700 mb-1">{t.calculator.fatteningCostParams.labor}</label>
                         <input
                             type="number"
                             value={fatteningCostParams.laborEscalation * 100}
@@ -2704,7 +2703,7 @@ const FatteningCostSection = ({ fatteningParams, setFatteningParams, fatteningCo
                         />
                     </div>
                     <div>
-                        <label className="block text-xs font-medium text-gray-700 mb-1">Overhead</label>
+                        <label className="block text-xs font-medium text-gray-700 mb-1">{t.calculator.fatteningCostParams.overhead}</label>
                         <input
                             type="number"
                             value={fatteningCostParams.overheadEscalation * 100}
@@ -2716,7 +2715,7 @@ const FatteningCostSection = ({ fatteningParams, setFatteningParams, fatteningCo
                         />
                     </div>
                     <div>
-                        <label className="block text-xs font-medium text-gray-700 mb-1">Utilities</label>
+                        <label className="block text-xs font-medium text-gray-700 mb-1">{t.calculator.fatteningCostParams.utilities}</label>
                         <input
                             type="number"
                             value={fatteningCostParams.utilitiesEscalation * 100}
@@ -3196,7 +3195,8 @@ const BarnManagementSection = ({
     setBarnAllocationMethod,
     fatteningParams,
     formatNumber,
-    currency
+    currency,
+    t
 }) => {
     const [isExpanded, setIsExpanded] = useState(true);
 
@@ -3205,9 +3205,9 @@ const BarnManagementSection = ({
             <div className="flex justify-between items-center mb-4">
                 <div className="flex items-center gap-2">
                     <Factory size={20} className="text-orange-600" />
-                    <h2 className="text-xl font-bold text-gray-800"> Barn / Cohort Management</h2>
+                    <h2 className="text-xl font-bold text-gray-800">{t.calculator.barnManagement.title}</h2>
                     <span className="text-xs bg-orange-100 text-orange-700 px-2 py-1 rounded-full font-semibold">
-                        {fatteningBarns.length} Barn{fatteningBarns.length !== 1 ? 's' : ''}
+                        {fatteningBarns.length} {fatteningBarns.length !== 1 ? t.calculator.barnManagement.barns : t.calculator.barnManagement.barn}
                     </span>
                 </div>
                 <button
@@ -3222,15 +3222,14 @@ const BarnManagementSection = ({
                 <>
                     <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
                         <p className="text-sm text-blue-800">
-                            <strong> Info:</strong> Manage individual barns/cohorts with staggered pig-in dates.
-                            Each barn operates independently with its own production cycle and cost allocation.
+                            <strong>{t.calculator.barnManagement.info}</strong> {t.calculator.barnManagement.infoText}
                         </p>
                     </div>
 
                     {/* Allocation Method Selector */}
                     <div className="mb-4 bg-white rounded-lg border p-4">
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Fixed Cost Allocation Method
+                            {t.calculator.barnManagement.fixedCostAllocation}
                         </label>
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                             <button
@@ -3240,8 +3239,8 @@ const BarnManagementSection = ({
                                     : 'border-gray-200 hover:border-gray-300'
                                     }`}
                             >
-                                <div className="text-xs font-semibold">Per Capita</div>
-                                <div className="text-[10px] text-gray-500">By headcount</div>
+                                <div className="text-xs font-semibold">{t.calculator.barnManagement.perCapita}</div>
+                                <div className="text-[10px] text-gray-500">{t.calculator.barnManagement.byHeadcount}</div>
                             </button>
                             <button
                                 onClick={() => setBarnAllocationMethod('equalSplit')}
@@ -3250,8 +3249,8 @@ const BarnManagementSection = ({
                                     : 'border-gray-200 hover:border-gray-300'
                                     }`}
                             >
-                                <div className="text-xs font-semibold">Equal Split</div>
-                                <div className="text-[10px] text-gray-500">Per active barn</div>
+                                <div className="text-xs font-semibold">{t.calculator.barnManagement.equalSplit}</div>
+                                <div className="text-[10px] text-gray-500">{t.calculator.barnManagement.perActiveBarn}</div>
                             </button>
                             <button
                                 onClick={() => setBarnAllocationMethod('biomass')}
@@ -3260,20 +3259,20 @@ const BarnManagementSection = ({
                                     : 'border-gray-200 hover:border-gray-300'
                                     }`}
                             >
-                                <div className="text-xs font-semibold">Biomass </div>
-                                <div className="text-[10px] text-gray-500">Recommended</div>
+                                <div className="text-xs font-semibold">{t.calculator.barnManagement.biomass}</div>
+                                <div className="text-[10px] text-gray-500">{t.calculator.barnManagement.recommended}</div>
                             </button>
                         </div>
                     </div>
 
                     {/* Add Barn Button */}
                     <div className="flex justify-between items-center mb-4">
-                        <h3 className="text-sm font-semibold text-gray-700">Barn List</h3>
+                        <h3 className="text-sm font-semibold text-gray-700">{t.calculator.barnManagement.barnList}</h3>
                         <button
                             onClick={addBarn}
                             className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 flex items-center gap-2"
                         >
-                            <Plus size={16} /> Add Barn
+                            <Plus size={16} /> {t.calculator.barnManagement.addBarn}
                         </button>
                     </div>
 
@@ -3281,7 +3280,7 @@ const BarnManagementSection = ({
                     {fatteningBarns.length === 0 ? (
                         <div className="text-center py-8 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
                             <Factory size={48} className="mx-auto text-gray-400 mb-2" />
-                            <p className="text-gray-500 text-sm">No barns added yet. Click "Add Barn" to start.</p>
+                            <p className="text-gray-500 text-sm">{t.calculator.barnManagement.noBarnsYet}</p>
                         </div>
                     ) : (
                         <div className="space-y-4">
@@ -3309,7 +3308,7 @@ const BarnManagementSection = ({
 
                                     <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                                         <div>
-                                            <label className="block text-xs font-medium text-gray-600 mb-1">Population (heads)</label>
+                                            <label className="block text-xs font-medium text-gray-600 mb-1">{t.calculator.barnManagement.population}</label>
                                             <input
                                                 type="number"
                                                 value={barn.population}
@@ -3318,7 +3317,7 @@ const BarnManagementSection = ({
                                             />
                                         </div>
                                         <div>
-                                            <label className="block text-xs font-medium text-gray-600 mb-1">Pig-In Date</label>
+                                            <label className="block text-xs font-medium text-gray-600 mb-1">{t.calculator.barnManagement.pigInDate}</label>
                                             <input
                                                 type="date"
                                                 value={barn.pigInDate}
@@ -3328,7 +3327,7 @@ const BarnManagementSection = ({
                                         </div>
                                         <div>
                                             <label className="block text-xs font-medium text-gray-600 mb-1">
-                                                Weight In (kg)
+                                                {t.calculator.barnManagement.weightIn}
                                                 {barn.weightIn === null && <span className="text-orange-500 ml-1">*</span>}
                                             </label>
                                             <input
@@ -3336,7 +3335,7 @@ const BarnManagementSection = ({
                                                 value={barn.weightIn ?? fatteningParams.weanerPurchaseWeight}
                                                 onChange={(e) => updateBarn(barn.id, 'weightIn', e.target.value ? parseFloat(e.target.value) : null)}
                                                 className="w-full px-2 py-1.5 border rounded text-sm"
-                                                placeholder={`Default: ${fatteningParams.weanerPurchaseWeight}`}
+                                                placeholder={`${t.calculator.barnManagement.default}: ${fatteningParams.weanerPurchaseWeight}`}
                                             />
                                         </div>
                                         <div>
@@ -3411,13 +3410,13 @@ const BarnManagementSection = ({
                                     </div>
 
                                     <div className="mt-2 text-xs text-gray-500">
-                                        <span className="text-orange-500">*</span> = Using farm default value
+                                        <span className="text-orange-500">*</span> = {t.calculator.barnManagement.usingFarmDefault}
                                     </div>
 
                                     {/* Per-Barn Exit Points */}
                                     <div className="mt-4 border-t pt-4">
                                         <div className="flex justify-between items-center mb-3">
-                                            <h4 className="text-sm font-semibold text-gray-700"> Exit Points (Sales Strategy)</h4>
+                                            <h4 className="text-sm font-semibold text-gray-700">{t.calculator.barnManagement.exitPoints}</h4>
                                             <button
                                                 onClick={() => {
                                                     const newExitPoints = [...(barn.exitPoints || [])];
@@ -3434,7 +3433,7 @@ const BarnManagementSection = ({
                                                 }}
                                                 className="px-3 py-1 bg-green-600 text-white rounded text-xs hover:bg-green-700 flex items-center gap-1"
                                             >
-                                                <Plus size={12} /> Add Exit Point
+                                                <Plus size={12} /> {t.calculator.barnManagement.addExitPoint}
                                             </button>
                                         </div>
 
@@ -3465,7 +3464,7 @@ const BarnManagementSection = ({
                                                                         }}
                                                                         className="rounded"
                                                                     />
-                                                                    <span className="text-xs font-semibold text-gray-700">Exit Point #{exitIdx + 1}</span>
+                                                                    <span className="text-xs font-semibold text-gray-700">{t.calculator.barnManagement.exitPoint} #{exitIdx + 1}</span>
                                                                 </div>
                                                                 {barn.exitPoints.length > 1 && (
                                                                     <button
@@ -3482,7 +3481,7 @@ const BarnManagementSection = ({
 
                                                             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                                                                 <div>
-                                                                    <label className="block text-[10px] font-medium text-gray-600 mb-1">Target Weight (kg)</label>
+                                                                    <label className="block text-[10px] font-medium text-gray-600 mb-1">{t.calculator.barnManagement.targetWeight}</label>
                                                                     <input
                                                                         type="number"
                                                                         value={exit.targetWeight}
@@ -3495,7 +3494,7 @@ const BarnManagementSection = ({
                                                                     />
                                                                 </div>
                                                                 <div>
-                                                                    <label className="block text-[10px] font-medium text-gray-600 mb-1">% of Pigs Sold</label>
+                                                                    <label className="block text-[10px] font-medium text-gray-600 mb-1">{t.calculator.barnManagement.percentPigsSold}</label>
                                                                     <input
                                                                         type="number"
                                                                         value={exit.percentage}
@@ -3508,7 +3507,7 @@ const BarnManagementSection = ({
                                                                     />
                                                                 </div>
                                                                 <div>
-                                                                    <label className="block text-[10px] font-medium text-gray-600 mb-1">Price per kg ({currency})</label>
+                                                                    <label className="block text-[10px] font-medium text-gray-600 mb-1">{t.calculator.barnManagement.pricePerKg} ({currency})</label>
                                                                     <input
                                                                         type="number"
                                                                         value={exit.pricePerKg}
@@ -3521,7 +3520,7 @@ const BarnManagementSection = ({
                                                                     />
                                                                 </div>
                                                                 <div>
-                                                                    <label className="block text-[10px] font-medium text-gray-600 mb-1">Days</label>
+                                                                    <label className="block text-[10px] font-medium text-gray-600 mb-1">{t.calculator.barnManagement.days}</label>
                                                                     <div className="px-2 py-1 bg-gray-100 border rounded text-xs text-center font-semibold text-gray-700">
                                                                         {daysInFattening}
                                                                     </div>
@@ -3531,13 +3530,13 @@ const BarnManagementSection = ({
                                                             {/* Exit Point Summary */}
                                                             <div className="mt-2 grid grid-cols-3 gap-2 text-[10px]">
                                                                 <div className="text-gray-600">
-                                                                     Pigs: <strong>{pigsAtExit}</strong> heads
+                                                                    {t.calculator.barnManagement.pigs} <strong>{pigsAtExit}</strong> {t.calculator.barnManagement.heads}
                                                                 </div>
                                                                 <div className="text-gray-600">
-                                                                     Feed: <strong>{feedPerPig.toFixed(1)}</strong> kg/pig
+                                                                    {t.calculator.barnManagement.feed} <strong>{feedPerPig.toFixed(1)}</strong> {t.calculator.barnManagement.kgPerPig}
                                                                 </div>
                                                                 <div className="text-green-700">
-                                                                     Revenue: <strong>{formatNumber(Math.round(revenuePerPig))}</strong> IDR/pig
+                                                                    {t.calculator.barnManagement.revenue} <strong>{formatNumber(Math.round(revenuePerPig))}</strong> {currency}{t.calculator.barnManagement.perPig}
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -3575,7 +3574,7 @@ const BarnManagementSection = ({
                     {fatteningBarns.length > 0 && (
                         <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
                             <div className="text-sm text-green-800">
-                                <strong> Total Capacity:</strong> {fatteningBarns.reduce((sum, b) => sum + b.population, 0)} heads across {fatteningBarns.length} barn{fatteningBarns.length !== 1 ? 's' : ''}
+                                <strong>{t.calculator.barnManagement.totalCapacity}</strong> {fatteningBarns.reduce((sum, b) => sum + b.population, 0)} {t.calculator.barnManagement.heads} {t.calculator.barnManagement.across} {fatteningBarns.length} {fatteningBarns.length !== 1 ? t.calculator.barnManagement.barns : t.calculator.barnManagement.barn}
                             </div>
                         </div>
                     )}
@@ -3608,23 +3607,24 @@ const FatteningSetup = ({
             fatteningParams={fatteningParams}
             formatNumber={formatNumber}
             currency={currency}
+            t={t}
         />
 
         <div className="bg-white rounded-lg shadow-sm border p-6">
-            <h2 className="text-xl font-bold text-gray-800 mb-4"> Fattening Parameters</h2>
+            <h2 className="text-xl font-bold text-gray-800 mb-4">{t.calculator.fatteningParams.title}</h2>
 
             {/* Info message when barns exist */}
             {fatteningBarns.length > 0 && (
                 <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
                     <p className="text-sm text-blue-800">
-                        <strong> Barn Mode Active:</strong> Piglet purchases are managed per-barn. Total capacity: <strong>{fatteningBarns.reduce((sum, b) => sum + b.population, 0)} heads</strong> across {fatteningBarns.length} barn{fatteningBarns.length !== 1 ? 's' : ''}.
+                        <strong>{t.calculator.fatteningParams.barnModeActive}</strong> {t.calculator.fatteningParams.barnModeInfo} <strong>{fatteningBarns.reduce((sum, b) => sum + b.population, 0)} {t.calculator.fatteningParams.heads}</strong> {t.calculator.fatteningParams.across} {fatteningBarns.length} {fatteningBarns.length !== 1 ? t.calculator.fatteningParams.barns : t.calculator.fatteningParams.barn}.
                     </p>
                 </div>
             )}
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Weaner Price ({currency})</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">{t.calculator.fatteningParams.weanerPrice} ({currency})</label>
                     <input
                         type="number"
                         value={fatteningParams.weanerPurchasePrice}
@@ -3634,7 +3634,7 @@ const FatteningSetup = ({
                     />
                 </div>
                 <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">ADG (kg/day)</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">{t.calculator.fatteningParams.adg}</label>
                     <input
                         type="number"
                         value={fatteningParams.adg}
@@ -3644,7 +3644,7 @@ const FatteningSetup = ({
                     />
                 </div>
                 <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">FCR</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">{t.calculator.fatteningParams.fcr}</label>
                     <input
                         type="number"
                         value={fatteningParams.fcr}
@@ -3654,7 +3654,7 @@ const FatteningSetup = ({
                     />
                 </div>
                 <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Mortality (%)</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">{t.calculator.fatteningParams.mortality}</label>
                     <input
                         type="number"
                         value={fatteningParams.mortality * 100}
@@ -3664,7 +3664,7 @@ const FatteningSetup = ({
                     />
                 </div>
                 <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Culling Rate (%)</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">{t.calculator.fatteningParams.cullingRate}</label>
                     <input
                         type="number"
                         value={(fatteningParams.cullingRate || 0) * 100}
@@ -3674,7 +3674,7 @@ const FatteningSetup = ({
                     />
                 </div>
                 <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Cleaning Period (days)</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">{t.calculator.fatteningParams.cleaningPeriod}</label>
                     <input
                         type="number"
                         value={fatteningParams.cleaningPeriodDays || 14}
@@ -3683,7 +3683,7 @@ const FatteningSetup = ({
                     />
                 </div>
                 <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Feed Price ({currency}/kg)</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">{t.calculator.fatteningParams.feedPrice} ({currency}/kg)</label>
                     <input
                         type="number"
                         value={fatteningParams.feedPrice}
@@ -3702,6 +3702,7 @@ const FatteningSetup = ({
             setFatteningCostParams={setFatteningCostParams}
             formatNumber={formatNumber}
             currency={currency}
+            t={t}
         />
     </div>
 );
@@ -3724,7 +3725,8 @@ const MultiExitStrategy = ({
     mortalityRate,
     priceLabel = "Price per kg",
     formatNumber,
-    currency
+    currency,
+    t
 }) => {
     const totalPercentage = exitPoints
         .filter(e => e.active)
@@ -3751,13 +3753,13 @@ const MultiExitStrategy = ({
                     onClick={addExitPoint}
                     className="px-3 py-1.5 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center gap-1 text-sm"
                 >
-                    <Plus size={14} /> Add Exit Point
+                    <Plus size={14} /> {t?.calculator?.integrated?.addExitPointBtn || 'Add Exit Point'}
                 </button>
             </div>
 
             <div className={`p-3 rounded-lg border ${theme.border} ${theme.bg}`}>
                 <p className={`text-sm ${theme.text}`}>
-                    <strong> Info:</strong> Define multiple exit points. Total percentage must equal 100%.
+                    <strong>{t?.calculator?.integrated?.info || 'Info:'}</strong> {t?.calculator?.integrated?.infoDefineMultipleExitPoints || 'Define multiple exit points. Total percentage must equal 100%.'}
                 </p>
             </div>
 
@@ -3782,7 +3784,7 @@ const MultiExitStrategy = ({
                             className={`border-2 rounded-lg p-4 ${exit.active ? `${theme.borderActive} ${theme.bg}` : 'border-gray-200 bg-gray-50'}`}
                         >
                             <div className="flex justify-between items-start mb-3">
-                                <h4 className="font-semibold text-gray-800">Exit Point #{idx + 1}</h4>
+                                <h4 className="font-semibold text-gray-800">{t?.calculator?.integrated?.exitPointHash || 'Exit Point #'}{idx + 1}</h4>
                                 <div className="flex gap-2">
                                     <label className="flex items-center gap-1 text-sm">
                                         <input
@@ -3791,7 +3793,7 @@ const MultiExitStrategy = ({
                                             onChange={(e) => updateExitPoint(exit.id, 'active', e.target.checked)}
                                             className="w-4 h-4"
                                         />
-                                        Active
+                                        {t?.calculator?.integrated?.activeLabel || 'Active'}
                                     </label>
                                     {exitPoints.length > 1 && (
                                         <button
@@ -3807,7 +3809,7 @@ const MultiExitStrategy = ({
                             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 mb-3">
                                 <div>
                                     <label className="block text-xs font-medium text-gray-700 mb-1">
-                                        Exit Month (from Entry)
+                                        {t?.calculator?.integrated?.exitMonthFromEntry || 'Exit Month (from Entry)'}
                                     </label>
                                     <input
                                         type="number"
@@ -3820,7 +3822,7 @@ const MultiExitStrategy = ({
 
                                 <div>
                                     <label className="block text-xs font-medium text-gray-700 mb-1">
-                                        Target Weight (kg)
+                                        {t?.calculator?.integrated?.targetWeightKg || 'Target Weight (kg)'}
                                     </label>
                                     <input
                                         type="number"
@@ -3832,7 +3834,7 @@ const MultiExitStrategy = ({
 
                                 <div>
                                     <label className="block text-xs font-medium text-gray-700 mb-1">
-                                        % of Pigs Sold
+                                        {t?.calculator?.integrated?.percentOfPigsSold || '% of Pigs Sold'}
                                     </label>
                                     <input
                                         type="number"
@@ -3863,19 +3865,19 @@ const MultiExitStrategy = ({
                                 <div className="p-3 bg-white rounded-lg border">
                                     <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs text-gray-700">
                                         <div>
-                                            <span className="block text-gray-500">Weight Gain</span>
+                                            <span className="block text-gray-500">{t?.calculator?.integrated?.weightGainLabel || 'Weight Gain'}</span>
                                             <span className="font-semibold">{weightGain.toFixed(1)} kg</span>
                                         </div>
                                         <div>
-                                            <span className="block text-gray-500">Days in Phase</span>
-                                            <span className="font-semibold">{Math.round(daysInPhase)} days</span>
+                                            <span className="block text-gray-500">{t?.calculator?.integrated?.daysInPhaseLabel || 'Days in Phase'}</span>
+                                            <span className="font-semibold">{Math.round(daysInPhase)} {t?.calculator?.integrated?.daysLower || 'days'}</span>
                                         </div>
                                         <div>
-                                            <span className="block text-gray-500">Feed/Pig</span>
+                                            <span className="block text-gray-500">{t?.calculator?.integrated?.feedPerPigLabel || 'Feed/Pig'}</span>
                                             <span className="font-semibold">{feedNeeded.toFixed(1)} kg</span>
                                         </div>
                                         <div>
-                                            <span className="block text-gray-500">Est. Revenue/Hd</span>
+                                            <span className="block text-gray-500">{t?.calculator?.integrated?.estRevenuePerHdLabel || 'Est. Revenue/Hd'}</span>
                                             <span className="font-semibold text-green-600">
                                                 {formatNumber(exit.targetWeight * exit.pricePerKg / 1000, 0)}K
                                             </span>
@@ -3891,7 +3893,7 @@ const MultiExitStrategy = ({
             {/* Validation Summary */}
             <div className={`p-4 rounded-lg border-2 ${isValid ? 'bg-green-50 border-green-400' : 'bg-red-50 border-red-400'}`}>
                 <div className="flex justify-between items-center text-sm">
-                    <span>Total % Allocated:</span>
+                    <span>{t?.calculator?.integrated?.totalAllocation100 ? (t.calculator.integrated.totalAllocation100.replace('100%', '').trim() + ':') : 'Total % Allocated:'}</span>
                     <span className={`font-bold ${isValid ? 'text-green-600' : 'text-red-600'}`}>
                         {totalPercentage.toFixed(1)}% {isValid ? '' : ' Must be 100%'}
                     </span>
@@ -3991,7 +3993,7 @@ const IntegratedSetup = ({
     return (
         <div className="space-y-6">
             <h3 className="text-xl font-bold text-gray-800 flex items-center gap-2">
-                <Factory className="text-purple-600" /> Integrated Farm Setup
+                <Factory className="text-purple-600" /> {t.calculator.integrated.integratedFarmSetup}
             </h3>
 
             {/* CALCULATION DATE - Placed before Financial Configuration */}
@@ -4016,15 +4018,15 @@ const IntegratedSetup = ({
             <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-4 border border-green-200 flex justify-between items-center shadow-sm">
                 <div>
                     <h4 className="font-bold text-green-900 flex items-center gap-2">
-                        <DollarSign size={18} /> Financial Configuration
+                        <DollarSign size={18} /> {t.calculator.integrated.financialConfiguration}
                     </h4>
-                    <p className="text-xs text-green-700 mt-1">Adjust how costs are calculated in the financial report.</p>
+                    <p className="text-xs text-green-700 mt-1">{t.calculator.integrated.adjustCostsInfo}</p>
                 </div>
 
                 {/* Gilt Cost Toggle */}
                 <div className="flex items-center gap-3 bg-white px-4 py-2 rounded-lg border border-green-100 shadow-sm">
                     <label className="text-sm font-semibold text-gray-700 cursor-pointer select-none" htmlFor="includeGiltCost">
-                        Include Gilt Purchase Cost
+                        {t.calculator.integrated.includeGiltPurchaseCost}
                     </label>
                     <button
                         id="includeGiltCost"
@@ -4042,18 +4044,18 @@ const IntegratedSetup = ({
             {/* FARM INFORMATION INPUTS */}
             <div className="bg-white rounded-lg shadow-sm border p-4">
                 <div className="flex justify-between items-center mb-4">
-                    <h4 className="font-semibold text-gray-700">Farm Information</h4>
+                    <h4 className="font-semibold text-gray-700">{t.calculator.integrated.farmInformation}</h4>
                 </div>
 
                 {/* FARM TYPE TOGGLE */}
                 <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-200 mb-4">
                     <div className="flex items-center justify-between">
                         <div>
-                            <h5 className="font-bold text-blue-800 mb-1"> Farm Type</h5>
+                            <h5 className="font-bold text-blue-800 mb-1"> {t.calculator.integrated.farmType}</h5>
                             <p className="text-xs text-blue-600">
                                 {integratedInputs.isNewFarm
-                                    ? "New farm - Build population using cohorts below"
-                                    : "Existing farm - Enter current sow population"}
+                                    ? t.calculator.integrated.newFarmBuildPopulation
+                                    : t.calculator.integrated.existingFarmDesc}
                             </p>
                         </div>
                         <div className="flex items-center gap-3">
@@ -4064,7 +4066,7 @@ const IntegratedSetup = ({
                                     : 'bg-white text-gray-600 border border-gray-300 hover:bg-gray-50'
                                     }`}
                             >
-                                Existing Farm
+                                {t.calculator.integrated.existingFarm}
                             </button>
                             <button
                                 onClick={() => setIntegratedInputs(p => ({ ...p, isNewFarm: true, breedingSowCapacity: 0 }))}
@@ -4073,7 +4075,7 @@ const IntegratedSetup = ({
                                     : 'bg-white text-gray-600 border border-gray-300 hover:bg-gray-50'
                                     }`}
                             >
-                                New Farm
+                                {t.calculator.integrated.newFarm}
                             </button>
                         </div>
                     </div>
@@ -4084,17 +4086,17 @@ const IntegratedSetup = ({
                     {!integratedInputs.isNewFarm && (
                         <>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Farm Start Date</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">{t.calculator.integrated.farmStartDate}</label>
                                 <input
                                     type="month"
                                     value={integratedInputs.farmStartDate || '2024-01'}
                                     onChange={(e) => setIntegratedInputs(p => ({ ...p, farmStartDate: e.target.value }))}
                                     className="w-full px-3 py-2 border rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                 />
-                                <p className="text-xs text-gray-500 mt-1">When did the farm start operating?</p>
+                                <p className="text-xs text-gray-500 mt-1">{t.calculator.integrated.whenDidFarmStart}</p>
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Current Population (Sows)</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">{t.calculator.integrated.currentPopulationSows}</label>
                                 <div className="relative">
                                     <input
                                         type="number"
@@ -4103,9 +4105,9 @@ const IntegratedSetup = ({
                                         className="w-full px-3 py-2 border rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 pr-12"
                                         min="0"
                                     />
-                                    <span className="absolute right-3 top-2.5 text-gray-400 font-medium">Heads</span>
+                                    <span className="absolute right-3 top-2.5 text-gray-400 font-medium">{t.calculator.integrated.heads}</span>
                                 </div>
-                                <p className="text-xs text-blue-600 mt-1 font-medium">Forms Cohort 0 (Stable Herd)</p>
+                                <p className="text-xs text-blue-600 mt-1 font-medium">{t.calculator.integrated.formsCohort0}</p>
                             </div>
                         </>
                     )}
@@ -4115,12 +4117,12 @@ const IntegratedSetup = ({
             {/* GILT COHORTS SECTION (Inline from BreedingSetup) */}
             <div className="bg-white rounded-lg shadow-sm border p-6">
                 <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-xl font-bold text-gray-800"> Gilt Cohorts</h2>
+                    <h2 className="text-xl font-bold text-gray-800">{t.calculator.integrated.giltCohortsTitle}</h2>
                     <button
                         onClick={addCohort}
                         className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center gap-2"
                     >
-                        <Plus size={16} /> Add Cohort
+                        <Plus size={16} /> {t.calculator.integrated.addCohortBtn}
                     </button>
                 </div>
 
@@ -4128,9 +4130,9 @@ const IntegratedSetup = ({
                 <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg text-sm text-blue-800 flex items-start gap-2">
                     <span className="text-lg"></span>
                     <div>
-                        <strong>Cohort 0 (Initial Stock)</strong> is automatically created from the "Current Population" field above and is immediately active in Month 0.
+                    	<strong>{t.calculator.integrated.cohortInitialStock}</strong> {t.calculator.integrated.cohortInitialStockInfo}
                         <br />
-                        Use this section to add <strong>future gilt purchases</strong> (Cohort 1, 2, 3, etc.).
+                        {t.calculator.integrated.cohortInitialStockInfo2} <strong>{t.calculator.integrated.futureGiltPurchases}</strong> {t.calculator.integrated.cohort123etc}
                     </div>
                 </div>
 
@@ -4142,7 +4144,7 @@ const IntegratedSetup = ({
                                     <h3 className="font-semibold text-lg">Cohort #{idx + 1}</h3>
                                     {cohort.autoGenerated && (
                                         <span className="px-2 py-0.5 text-xs bg-indigo-100 text-indigo-700 rounded-full font-medium">
-                                             Auto-Generated
+                                             {t.calculator.integrated.autoGenerated}
                                         </span>
                                     )}
                                 </div>
@@ -4158,13 +4160,13 @@ const IntegratedSetup = ({
 
                             {cohort.autoGenerated && cohort.generationReason && (
                                 <div className="mb-3 p-2 bg-blue-50 rounded-lg border border-blue-200 text-xs text-blue-700">
-                                    <strong> Purpose:</strong> {cohort.generationReason}
+                                    <strong> {t.calculator.integrated.purpose}</strong> {cohort.generationReason}
                                 </div>
                             )}
 
                             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Cohort Name</label>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">{t.calculator.integrated.cohortName}</label>
                                     <input
                                         type="text"
                                         value={cohort.name}
@@ -4173,7 +4175,7 @@ const IntegratedSetup = ({
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Number of Gilts</label>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">{t.calculator.integrated.numberOfGilts}</label>
                                     <input
                                         type="number"
                                         value={cohort.numberOfGilts}
@@ -4182,7 +4184,7 @@ const IntegratedSetup = ({
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Entry Date</label>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">{t.calculator.integrated.entryDate}</label>
                                     <input
                                         type="date"
                                         value={cohort.entryDate}
@@ -4192,8 +4194,8 @@ const IntegratedSetup = ({
                                 </div>
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                                        Days to First Mating
-                                        <span className="text-xs text-gray-500 ml-2">(Leave empty for auto)</span>
+                                        {t.calculator.integrated.daysToFirstMatingLabel}
+                                        <span className="text-xs text-gray-500 ml-2">{t.calculator.integrated.leaveEmptyForAuto}</span>
                                     </label>
                                     <div className="flex flex-wrap gap-2">
                                         <input
@@ -4215,7 +4217,7 @@ const IntegratedSetup = ({
                                             className="px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm"
                                             title="Clear to use auto lead time"
                                         >
-                                            Clear
+                                            {t.calculator.integrated.clear}
                                         </button>
                                     </div>
                                 </div>
@@ -4228,20 +4230,20 @@ const IntegratedSetup = ({
             {/* PROGRESSIVE CULLING STRATEGY */}
             <div className="bg-gradient-to-r from-emerald-50 to-emerald-100 rounded-xl p-4 border border-emerald-200 mb-6">
                 <h3 className="font-bold text-emerald-800 mb-4">
-                     Progressive Culling & Replacement Strategy
+                    {t.calculator.integrated.progressiveCullingStrategy}
                 </h3>
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    <InputField label="Year 1 Culling & Replacement (%)"
+                    <InputField label={t.calculator.integrated.year1CullingReplacement}
                         value={(integratedInputs.cullingRateY1 || 0) * 100}
                         onChange={(v) => setIntegratedInputs(p => ({ ...p, cullingRateY1: v / 100 }))}
                         suffix="%" small />
-                    <InputField label="Year 2 Culling & Replacement (%)"
+                    <InputField label={t.calculator.integrated.year2CullingReplacement}
                         value={(integratedInputs.cullingRateY2 || 0.30) * 100}
                         onChange={(v) => setIntegratedInputs(p => ({ ...p, cullingRateY2: v / 100 }))}
                         suffix="%" small />
                     <div className="">
-                        <label className="block text-xs font-medium text-gray-700 mb-1" style={{ fontSize: '0.65rem', lineHeight: '1rem' }}>Year 3+ and Stable Farm Culling & Replacement (%)</label>
+                        <label className="block text-xs font-medium text-gray-700 mb-1" style={{ fontSize: '0.65rem', lineHeight: '1rem' }}>{t.calculator.integrated.year3StableCullingReplacement}</label>
                         <div className="relative">
                             <input
                                 type="number"
@@ -4259,25 +4261,24 @@ const IntegratedSetup = ({
 
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mt-3">
                     <div className="text-xs text-blue-800">
-                        <strong> How it works:</strong> Replacement gilts added monthly based on culling.
-                        Monthly rate = (Annual Culling % × Cohort Population) ÷ 12.
+                        <strong>{t.calculator.integrated.howItWorksLabel}</strong> {t.calculator.integrated.replacementGiltsInfo}
                     </div>
                 </div>
             </div>
 
             {/* BREEDING PARAMETERS - YEAR 1 vs YEAR 2+ */}
             <div className="bg-white rounded-lg shadow-sm border p-6">
-                <h3 className="text-lg font-bold text-gray-800 mb-4"> Breeding Parameters (Year 1 vs Year 2+)</h3>
+                <h3 className="text-lg font-bold text-gray-800 mb-4">{t.calculator.integrated.breedingParametersTitle}</h3>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                     {/* YEAR 1 PARAMETERS (Ramp-up period) */}
                     <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
                         <h4 className="font-semibold text-yellow-800 mb-3 flex items-center gap-2">
-                            <span></span> Year 1 (Ramp-up)
+                            <span></span> {t.calculator.integrated.year1RampUp}
                         </h4>
                         <div className="space-y-3">
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Farrowing Rate Y1 (%)</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">{t.calculator.integrated.farrowingRateY1}</label>
                                 <input
                                     type="number"
                                     value={(integratedParams.breeding.farrowingRateY1 ?? 0.85) * 100}
@@ -4292,7 +4293,7 @@ const IntegratedSetup = ({
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Born Alive per Litter Y1</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">{t.calculator.integrated.bornAlivePerLitterY1}</label>
                                 <input
                                     type="number"
                                     value={integratedParams.breeding.bornAliveY1 ?? 12}
@@ -4305,7 +4306,7 @@ const IntegratedSetup = ({
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Pre-Wean Mortality Y1 (%)</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">{t.calculator.integrated.preWeanMortalityY1}</label>
                                 <input
                                     type="number"
                                     value={(integratedParams.breeding.preWeaningMortalityY1 ?? 0.10) * 100}
@@ -4325,11 +4326,11 @@ const IntegratedSetup = ({
                     {/* YEAR 2+ PARAMETERS (Stable/Full Production) */}
                     <div className="bg-green-50 p-4 rounded-lg border border-green-200">
                         <h4 className="font-semibold text-green-800 mb-3 flex items-center gap-2">
-                            <span></span> Year 2+ (Full Production)
+                            <span></span> {t.calculator.integrated.year2FullProduction}
                         </h4>
                         <div className="space-y-3">
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Farrowing Rate Y2+ (%)</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">{t.calculator.integrated.farrowingRateY2Plus}</label>
                                 <input
                                     type="number"
                                     value={(integratedParams.breeding.farrowingRateY2 ?? 0.90) * 100}
@@ -4344,7 +4345,7 @@ const IntegratedSetup = ({
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Born Alive per Litter Y2+</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">{t.calculator.integrated.bornAlivePerLitterY2Plus}</label>
                                 <input
                                     type="number"
                                     value={integratedParams.breeding.bornAliveY2 ?? 13}
@@ -4357,7 +4358,7 @@ const IntegratedSetup = ({
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Pre-Wean Mortality Y2+ (%)</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">{t.calculator.integrated.preWeanMortalityY2Plus}</label>
                                 <input
                                     type="number"
                                     value={(integratedParams.breeding.preWeaningMortalityY2 ?? 0.08) * 100}
@@ -4377,7 +4378,7 @@ const IntegratedSetup = ({
 
                 {/* PSY PREVIEW - Auto Calculated */}
                 <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-                    <h4 className="font-semibold text-blue-800 mb-3"> PSY Preview (Auto-Calculated)</h4>
+                    <h4 className="font-semibold text-blue-800 mb-3">{t.calculator.integrated.psyPreviewTitle}</h4>
                     {(() => {
                         const gestationDays = integratedInputs.gestationDays || 116;
                         const lactationDays = integratedInputs.lactationDays || 24;
@@ -4399,19 +4400,19 @@ const IntegratedSetup = ({
                         return (
                             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-center">
                                 <div className="bg-white p-3 rounded-lg">
-                                    <div className="text-xs text-gray-500">Cycle Days</div>
+                                    <div className="text-xs text-gray-500">{t.calculator.integrated.cycleDaysLabel}</div>
                                     <div className="text-2xl font-bold text-gray-700">{cycleDays}</div>
-                                    <div className="text-xs text-gray-400">{littersPerYear.toFixed(2)} litters/year</div>
+                                    <div className="text-xs text-gray-400">{littersPerYear.toFixed(2)} {t.calculator.integrated.littersPerYearLabel}</div>
                                 </div>
                                 <div className="bg-white p-3 rounded-lg">
-                                    <div className="text-xs text-gray-500">PSY Year 1</div>
+                                    <div className="text-xs text-gray-500">{t.calculator.integrated.psyYear1Label}</div>
                                     <div className="text-2xl font-bold text-yellow-600">{psyY1.toFixed(1)}</div>
-                                    <div className="text-xs text-gray-400">pigs/sow/year</div>
+                                    <div className="text-xs text-gray-400">{t.calculator.integrated.pigsPerSowPerYearLabel}</div>
                                 </div>
                                 <div className="bg-white p-3 rounded-lg">
-                                    <div className="text-xs text-gray-500">PSY Year 2+</div>
+                                    <div className="text-xs text-gray-500">{t.calculator.integrated.psyYear2PlusLabel}</div>
                                     <div className="text-2xl font-bold text-green-600">{psyY2.toFixed(1)}</div>
-                                    <div className="text-xs text-gray-400">pigs/sow/year</div>
+                                    <div className="text-xs text-gray-400">{t.calculator.integrated.pigsPerSowPerYearLabel}</div>
                                 </div>
                             </div>
                         );
@@ -4420,7 +4421,7 @@ const IntegratedSetup = ({
 
                 {/* Legacy Weaner Price */}
                 <div className="mt-4">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Weaner Price ({currency})</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">{t.calculator.integrated.weanerPriceUSD}</label>
                     <input
                         type="number"
                         value={integratedParams.breeding.weanerPrice}
@@ -4439,46 +4440,46 @@ const IntegratedSetup = ({
             {/* NEW: BIOLOGICAL CYCLE PARAMETERS */}
             <div className="bg-gradient-to-r from-pink-50 to-pink-100 rounded-xl p-4 border border-pink-200">
                 <h3 className="font-bold text-pink-800 mb-4 flex items-center gap-2">
-                     BIOLOGICAL CYCLE PARAMETERS (Days)
+                    {t.calculator.integrated.biologicalCycleParameters}
                 </h3>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
                     {/* GILT CYCLE */}
                     <div className="bg-white p-3 rounded-lg border">
                         <InputField
-                            label="Days to First Mating"
+                            label={t.calculator.integrated.daysToFirstMating}
                             value={integratedInputs.giltToFirstMating || 45}
                             onChange={(v) => setIntegratedInputs(p => ({ ...p, giltToFirstMating: v }))}
-                            suffix="days"
+                            suffix={t.calculator.integrated.days}
                             small
                         />
-                        <div className="text-xs text-gray-500 mt-1">Acclimatization + Puberty</div>
+                        <div className="text-xs text-gray-500 mt-1">{t.calculator.integrated.acclimatizationPuberty}</div>
                     </div>
 
                     {/* REPRODUCTION */}
                     <div className="bg-white p-3 rounded-lg border">
-                        <InputField label="Gestation Period" value={integratedInputs.gestationDays || 116}
-                            onChange={(v) => setIntegratedInputs(p => ({ ...p, gestationDays: v }))} suffix="days" small />
-                        <InputField label="Lactation Period" value={integratedInputs.lactationDays || 24}
-                            onChange={(v) => setIntegratedInputs(p => ({ ...p, lactationDays: v }))} suffix="days" small />
+                        <InputField label={t.calculator.integrated.gestationPeriod} value={integratedInputs.gestationDays || 116}
+                            onChange={(v) => setIntegratedInputs(p => ({ ...p, gestationDays: v }))} suffix={t.calculator.integrated.days} small />
+                        <InputField label={t.calculator.integrated.lactationPeriod} value={integratedInputs.lactationDays || 24}
+                            onChange={(v) => setIntegratedInputs(p => ({ ...p, lactationDays: v }))} suffix={t.calculator.integrated.days} small />
                     </div>
 
                     {/* DRY SOW */}
                     <div className="bg-white p-3 rounded-lg border">
-                        <InputField label="Dry Sow Days" value={integratedInputs.drySowDays || 10}
-                            onChange={(v) => setIntegratedInputs(p => ({ ...p, drySowDays: v }))} suffix="days" small />
-                        <div className="text-xs text-gray-500 mt-1">Weaning to next mating</div>
+                        <InputField label={t.calculator.integrated.drySowDays} value={integratedInputs.drySowDays || 10}
+                            onChange={(v) => setIntegratedInputs(p => ({ ...p, drySowDays: v }))} suffix={t.calculator.integrated.days} small />
+                        <div className="text-xs text-gray-500 mt-1">{t.calculator.integrated.weaningToNextMating}</div>
                     </div>
 
                     {/* AUTO-CALCULATED */}
                     <div className="bg-green-50 p-3 rounded-lg border border-green-300">
-                        <div className="text-xs text-gray-600">Gilt → 1st Wean:</div>
+                        <div className="text-xs text-gray-600">{t.calculator.integrated.giltTo1stWean}</div>
                         <div className="text-lg font-bold text-green-700">
-                            {(integratedInputs.giltToFirstMating || 45) + (integratedInputs.gestationDays || 116) + (integratedInputs.lactationDays || 24)} days
+                            {(integratedInputs.giltToFirstMating || 45) + (integratedInputs.gestationDays || 116) + (integratedInputs.lactationDays || 24)} {t.calculator.integrated.days}
                         </div>
-                        <div className="text-xs text-gray-600 mt-2">Cycle Length:</div>
+                        <div className="text-xs text-gray-600 mt-2">{t.calculator.integrated.cycleLength}</div>
                         <div className="text-lg font-bold text-blue-700">
-                            {(integratedInputs.lactationDays || 24) + (integratedInputs.drySowDays || 10) + (integratedInputs.gestationDays || 116)} days
+                            {(integratedInputs.lactationDays || 24) + (integratedInputs.drySowDays || 10) + (integratedInputs.gestationDays || 116)} {t.calculator.integrated.days}
                         </div>
                     </div>
                 </div>
@@ -4489,7 +4490,7 @@ const IntegratedSetup = ({
             {/* MATING MANAGEMENT SYSTEM */}
             <div className="bg-gradient-to-r from-purple-50 to-purple-100 rounded-xl p-4 border border-purple-200">
                 <h3 className="font-bold text-purple-800 mb-4">
-                     MATING MANAGEMENT SYSTEM
+                    {t.calculator.integrated.matingManagementSystem}
                 </h3>
 
                 {/* System Selection Cards */}
@@ -4499,9 +4500,9 @@ const IntegratedSetup = ({
                         ? 'border-purple-500 bg-purple-50'
                         : 'border-gray-200 bg-white'
                         }`} onClick={() => setIntegratedInputs(p => ({ ...p, matingSystem: 'batch' }))}>
-                        <div className="font-bold text-purple-800"> BATCH MATING</div>
+                        <div className="font-bold text-purple-800">{t.calculator.integrated.batchMating}</div>
                         <div className="text-xs text-gray-600 mt-1">
-                            Sows grouped into batches. All batch members mated on same day.
+                            {t.calculator.integrated.batchMatingDesc}
                         </div>
                     </div>
 
@@ -4510,9 +4511,9 @@ const IntegratedSetup = ({
                         ? 'border-green-500 bg-green-50'
                         : 'border-gray-200 bg-white'
                         }`} onClick={() => setIntegratedInputs(p => ({ ...p, matingSystem: 'weekly' }))}>
-                        <div className="font-bold text-green-800"> WEEKLY MATING</div>
+                        <div className="font-bold text-green-800">{t.calculator.integrated.weeklyMating}</div>
                         <div className="text-xs text-gray-600 mt-1">
-                            Continuous flow. Sows mated every week for smooth production.
+                            {t.calculator.integrated.weeklyMatingDesc}
                         </div>
                     </div>
                 </div>
@@ -4552,19 +4553,19 @@ const IntegratedSetup = ({
                     <div className="bg-white rounded-lg border p-4">
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                             <div>
-                                <div className="text-xs text-gray-600 mb-1">Sows Mated/Week</div>
+                                <div className="text-xs text-gray-600 mb-1">{t.calculator.integrated.sowsMatedPerWeek}</div>
                                 <div className="text-2xl font-bold text-green-600">
                                     ~{Math.ceil(calculateWeeklySowsMated(integratedInputs))}
                                 </div>
                             </div>
                             <div>
-                                <div className="text-xs text-gray-600 mb-1">Farrowings/Week</div>
+                                <div className="text-xs text-gray-600 mb-1">{t.calculator.integrated.farrowingsPerWeek}</div>
                                 <div className="text-2xl font-bold text-blue-600">
                                     ~{Math.ceil(calculateWeeklySowsMated(integratedInputs) * (integratedInputs.farrowingRateY2 || 0.90))}
                                 </div>
                             </div>
                             <div>
-                                <div className="text-xs text-gray-600 mb-1">Piglets/Week</div>
+                                <div className="text-xs text-gray-600 mb-1">{t.calculator.integrated.pigletsPerWeek}</div>
                                 <div className="text-2xl font-bold text-purple-600">
                                     ~{Math.ceil(calculateWeeklyPiglets(integratedInputs))}
                                 </div>
@@ -4577,7 +4578,7 @@ const IntegratedSetup = ({
             {/* PIGLET ALLOCATION STRATEGY */}
             <div className="bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl p-5 border border-blue-200">
                 <h3 className="font-bold text-blue-800 mb-4 text-lg border-b border-blue-200 pb-2">
-                     PIGLET ALLOCATION STRATEGY
+                    {t.calculator.integrated.pigletAllocationStrategy}
                 </h3>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -4586,15 +4587,15 @@ const IntegratedSetup = ({
                         <div className="flex items-center gap-3 mb-4">
                             <span className="text-3xl"></span>
                             <div>
-                                <div className="font-bold text-purple-700 text-lg">Nursery Program</div>
-                                <div className="text-xs text-gray-500">Sell as weaners/piglets</div>
+                                <div className="font-bold text-purple-700 text-lg">{t.calculator.integrated.nurseryProgramLabel}</div>
+                                <div className="text-xs text-gray-500">{t.calculator.integrated.sellAsWeanersLabel}</div>
                             </div>
                         </div>
 
                         <div className="space-y-4">
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    % Piglets to Nursery Sales
+                                    {t.calculator.integrated.pigletsToNurserySales}
                                 </label>
                                 <div className="relative">
                                     <input
@@ -4609,7 +4610,7 @@ const IntegratedSetup = ({
 
                             <div className="grid grid-cols-2 gap-3">
                                 <div>
-                                    <label className="block text-xs font-medium text-gray-600 mb-1">Nursery ADG</label>
+                                    <label className="block text-xs font-medium text-gray-600 mb-1">{t.calculator.integrated.nurseryADGLabel}</label>
                                     <input
                                         type="number"
                                         value={integratedInputs.nurseryAdg}
@@ -4619,7 +4620,7 @@ const IntegratedSetup = ({
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-xs font-medium text-gray-600 mb-1">% Depletion</label>
+                                    <label className="block text-xs font-medium text-gray-600 mb-1">{t.calculator.integrated.depletionPercent}</label>
                                     <input
                                         type="number"
                                         value={integratedInputs.nurseryDepletion || 0}
@@ -4631,7 +4632,7 @@ const IntegratedSetup = ({
                                 </div>
                             </div>
                             <div>
-                                <label className="block text-xs font-medium text-gray-600 mb-1">Nursery FCR</label>
+                                <label className="block text-xs font-medium text-gray-600 mb-1">{t.calculator.integrated.nurseryFCRLabel}</label>
                                 <input
                                     type="number"
                                     value={integratedInputs.nurseryFcr}
@@ -4648,15 +4649,15 @@ const IntegratedSetup = ({
                         <div className="flex items-center gap-3 mb-4">
                             <span className="text-3xl"></span>
                             <div>
-                                <div className="font-bold text-orange-700 text-lg">Fattening Program</div>
-                                <div className="text-xs text-gray-500">Grow to finish</div>
+                                <div className="font-bold text-orange-700 text-lg">{t.calculator.integrated.fatteningProgramLabel}</div>
+                                <div className="text-xs text-gray-500">{t.calculator.integrated.growToFinishLabel}</div>
                             </div>
                         </div>
 
                         <div className="space-y-4">
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    % Piglets to Fattening
+                                    {t.calculator.integrated.pigletsToFatteningLabel}
                                 </label>
                                 <div className="relative">
                                     <input
@@ -4667,12 +4668,12 @@ const IntegratedSetup = ({
                                     />
                                     <span className="absolute right-3 top-2.5 text-gray-400 font-bold">%</span>
                                 </div>
-                                <p className="text-xs text-orange-600 mt-1">Auto-calculated (100% - Nursery)</p>
+                                <p className="text-xs text-orange-600 mt-1">{t.calculator.integrated.autoCalculated100MinusNursery}</p>
                             </div>
 
                             <div className="grid grid-cols-2 gap-3">
                                 <div>
-                                    <label className="block text-xs font-medium text-gray-600 mb-1">Fattening ADG</label>
+                                    <label className="block text-xs font-medium text-gray-600 mb-1">{t.calculator.integrated.fatteningADGLabel}</label>
                                     <input
                                         type="number"
                                         value={integratedInputs.fatteningAdg}
@@ -4682,7 +4683,7 @@ const IntegratedSetup = ({
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-xs font-medium text-gray-600 mb-1">% Depletion</label>
+                                    <label className="block text-xs font-medium text-gray-600 mb-1">{t.calculator.integrated.depletionPercent}</label>
                                     <input
                                         type="number"
                                         value={integratedInputs.fatteningDepletion || 0}
@@ -4694,7 +4695,7 @@ const IntegratedSetup = ({
                                 </div>
                             </div>
                             <div>
-                                <label className="block text-xs font-medium text-gray-600 mb-1">Fattening FCR</label>
+                                <label className="block text-xs font-medium text-gray-600 mb-1">{t.calculator.integrated.fatteningFCRLabel}</label>
                                 <input
                                     type="number"
                                     value={integratedInputs.fatteningFcr}
@@ -4713,14 +4714,14 @@ const IntegratedSetup = ({
                 ? 'bg-green-100 text-green-800'
                 : 'bg-red-100 text-red-800'
                 }`}>
-                Total Allocation: 100% {Math.abs(integratedInputs.nurseryAllocationPercent + (1 - integratedInputs.nurseryAllocationPercent) - 1.0) < 0.001 ? '' : ''}
+                {t.calculator.integrated.totalAllocation100} {Math.abs(integratedInputs.nurseryAllocationPercent + (1 - integratedInputs.nurseryAllocationPercent) - 1.0) < 0.001 ? '' : ''}
             </div>
 
             {/* NURSERY PROGRAM STRATEGY */}
             {
                 integratedInputs.nurseryAllocationPercent > 0 && (
                     <MultiExitStrategy
-                        title="Nursery Sales Strategy"
+                        title={t.calculator.integrated.nurserySalesStrategyTitle}
                         icon=""
                         colorTheme="purple"
                         exitPoints={nurseryExitPoints}
@@ -4736,6 +4737,7 @@ const IntegratedSetup = ({
                         mortalityRate={integratedInputs.nurseryMortality}
                         formatNumber={formatNumber}
                         currency={currency}
+                        t={t}
                     />
                 )
             }
@@ -4744,7 +4746,7 @@ const IntegratedSetup = ({
             {
                 (1 - integratedInputs.nurseryAllocationPercent) > 0 && (
                     <MultiExitStrategy
-                        title="Fattening Sales Strategy"
+                        title={t.calculator.integrated.fatteningSalesStrategyTitle}
                         icon=""
                         colorTheme="orange"
                         exitPoints={fatteningExitPoints}
@@ -4760,6 +4762,7 @@ const IntegratedSetup = ({
                         mortalityRate={integratedParams.fattening.mortality}
                         formatNumber={formatNumber}
                         currency={currency}
+                        t={t}
                     />
                 )
             }
@@ -4779,7 +4782,7 @@ const IntegratedSetup = ({
                     id="save-calc-btn"
                     className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg shadow-md flex items-center gap-2 transition-all transform hover:scale-105"
                 >
-                    <span> Save & Calculate</span>
+                    <span>{t.calculator.integrated.saveAndCalculate}</span>
                 </button>
             </div>
         </div >
@@ -4788,102 +4791,42 @@ const IntegratedSetup = ({
 
 
 
-const BiologicalTimelineExample = () => (
+const BiologicalTimelineExample = ({ t }) => (
     <div className="bg-gradient-to-r from-pink-50 to-purple-50 rounded-lg p-4 border border-pink-100 mb-6 no-print">
         <h4 className="font-bold text-pink-800 mb-2 text-sm flex items-center gap-2">
-             Biological Cycle Example (Day-Level)
+            {t.calculator.integrated.biologicalCycleExample}
         </h4>
         <div className="flex items-center gap-2 text-xs overflow-x-auto pb-2">
             <div className="flex flex-col items-center min-w-[80px]">
-                <span className="font-bold text-gray-700">Day 0</span>
+                <span className="font-bold text-gray-700">{t.calculator.integrated.day} 0</span>
                 <div className="w-3 h-3 rounded-full bg-gray-400 my-1"></div>
-                <span className="text-gray-500">Gilt Est.</span>
+                <span className="text-gray-500">{t.calculator.integrated.giltEst}</span>
             </div>
             <div className="h-0.5 w-10 bg-gray-300"></div>
             <div className="flex flex-col items-center min-w-[80px]">
-                <span className="font-bold text-pink-600">Day 45</span>
+                <span className="font-bold text-pink-600">{t.calculator.integrated.day} 45</span>
                 <div className="w-3 h-3 rounded-full bg-pink-500 my-1"></div>
-                <span className="text-pink-700 font-semibold">1st Mating</span>
+                <span className="text-pink-700 font-semibold">{t.calculator.integrated.firstMating}</span>
             </div>
             <div className="h-0.5 w-10 bg-gray-300"></div>
             <div className="flex flex-col items-center min-w-[80px]">
-                <span className="font-bold text-purple-600">Day 161</span>
+                <span className="font-bold text-purple-600">{t.calculator.integrated.day} 161</span>
                 <div className="w-3 h-3 rounded-full bg-purple-500 my-1"></div>
-                <span className="text-purple-700 font-semibold">Farrowing</span>
-                <span className="text-[10px] text-gray-400">(+116d Gest)</span>
+                <span className="text-purple-700 font-semibold">{t.calculator.integrated.farrowing}</span>
+                <span className="text-[10px] text-gray-400">{t.calculator.integrated.gestDays}</span>
             </div>
             <div className="h-0.5 w-10 bg-gray-300"></div>
             <div className="flex flex-col items-center min-w-[80px]">
-                <span className="font-bold text-teal-600">Day 185</span>
+                <span className="font-bold text-teal-600">{t.calculator.integrated.day} 185</span>
                 <div className="w-3 h-3 rounded-full bg-teal-500 my-1"></div>
-                <span className="text-teal-700 font-semibold">Weaning</span>
-                <span className="text-[10px] text-gray-400">(+24d Lact)</span>
+                <span className="text-teal-700 font-semibold">{t.calculator.integrated.weaning}</span>
+                <span className="text-[10px] text-gray-400">{t.calculator.integrated.lactDays}</span>
             </div>
         </div>
     </div>
 );
 
-const MatingCohortTracker = ({ dailyEvents }) => {
-    if (!dailyEvents || !dailyEvents.matingEvents) return null;
 
-    // Show first 100 events
-    const events = dailyEvents.matingEvents.slice(0, 100);
-
-    return (
-        <div className="bg-white rounded-lg shadow-sm border mt-6 overflow-hidden no-print">
-            <div className="bg-gradient-to-r from-pink-500 to-rose-500 text-white px-4 py-3 flex justify-between items-center">
-                <span className="font-semibold flex items-center gap-2">
-                     Mating Cohort Tracker
-                </span>
-                <span className="text-xs bg-white/20 px-2 py-1 rounded">
-                    Trace Biological Cycles
-                </span>
-            </div>
-            <div className="overflow-x-auto max-h-96">
-                <table className="min-w-full text-xs">
-                    <thead className="bg-gray-100 sticky top-0 z-10">
-                        <tr>
-                            <th className="px-3 py-2 text-left">Date</th>
-                            <th className="px-3 py-2 text-left">Cohort</th>
-                            <th className="px-3 py-2 text-center">Cycle #</th>
-                            <th className="px-3 py-2 text-right">Sows Mated</th>
-                            <th className="px-3 py-2 text-right text-gray-500">Exp. Farrowing</th>
-                            <th className="px-3 py-2 text-right text-gray-500">Exp. Weaning</th>
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y">
-                        {events.map((evt, idx) => (
-                            <tr key={idx} className="hover:bg-pink-50 transition-colors">
-                                <td className="px-3 py-2 font-medium text-pink-700">
-                                    {evt.date} <span className="text-gray-400 font-normal">(Day {evt.day})</span>
-                                </td>
-                                <td className="px-3 py-2">{evt.cohortId}</td>
-                                <td className="px-3 py-2 text-center">
-                                    <span className="px-1.5 py-0.5 bg-gray-200 rounded text-[10px] font-bold">
-                                        C{evt.cycleNumber}
-                                    </span>
-                                </td>
-                                <td className="px-3 py-2 text-right font-bold">{Math.round(evt.count)}</td>
-                                <td className="px-3 py-2 text-right text-gray-600">
-                                    Day {evt.farrowingDay}
-                                </td>
-                                <td className="px-3 py-2 text-right text-gray-600">
-                                    Day {evt.weaningDay}
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
-            <div className="bg-gray-50 p-2 text-xs text-center text-gray-500 border-t flex justify-between items-center">
-                <span>Showing {events.length} scheduled mating events.</span>
-                {events.length === 0 && (
-                    <span className="text-orange-600 font-bold"> No events? Add Gilts in 'Manual Cohorts' above!</span>
-                )}
-            </div>
-        </div>
-    );
-};
 
 const ProductionTimeline = ({ mode, MODES, projection, formatNumber, fatteningBarns, fatteningParams, currency = 'USD', t }) => {
     // Get available years from timeline
@@ -4952,17 +4895,17 @@ const ProductionTimeline = ({ mode, MODES, projection, formatNumber, fatteningBa
 
                 return (
                     <div className="bg-white rounded-lg shadow-sm border p-6">
-                        <h3 className="text-lg font-bold text-gray-800 mb-4"> Barn Status Dashboard</h3>
+                        <h3 className="text-lg font-bold text-gray-800 mb-4">{t.calculator.production.barnStatusDashboard}</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                             {projection.barnResults.map((barn) => {
                                 const statusInfo = getBarnStatus(barn, today);
 
                                 // Status colors and icons
                                 const statusConfig = {
-                                    notStarted: { bg: 'bg-gray-100', border: 'border-gray-300', text: 'text-gray-700', icon: '', label: 'Not Started' },
-                                    growing: { bg: 'bg-green-50', border: 'border-green-300', text: 'text-green-700', icon: '', label: 'Growing' },
-                                    cleaning: { bg: 'bg-yellow-50', border: 'border-yellow-300', text: 'text-yellow-700', icon: '', label: 'Cleaning' },
-                                    readyForNextBatch: { bg: 'bg-blue-50', border: 'border-blue-300', text: 'text-blue-700', icon: '', label: 'Ready' },
+                                    notStarted: { bg: 'bg-gray-100', border: 'border-gray-300', text: 'text-gray-700', icon: '', label: t.calculator.production.notStarted },
+                                    growing: { bg: 'bg-green-50', border: 'border-green-300', text: 'text-green-700', icon: '', label: t.calculator.production.growing },
+                                    cleaning: { bg: 'bg-yellow-50', border: 'border-yellow-300', text: 'text-yellow-700', icon: '', label: t.calculator.production.cleaning },
+                                    readyForNextBatch: { bg: 'bg-blue-50', border: 'border-blue-300', text: 'text-blue-700', icon: '', label: t.calculator.production.ready },
                                 };
 
                                 const config = statusConfig[statusInfo.status] || statusConfig.notStarted;
@@ -4979,19 +4922,19 @@ const ProductionTimeline = ({ mode, MODES, projection, formatNumber, fatteningBa
                                                 {config.label}
                                             </div>
                                             <div className="text-gray-600">
-                                                 Population: <strong>{formatNumber(barn.population)}</strong>
+                                                {t.calculator.production.population} <strong>{formatNumber(barn.population)}</strong>
                                             </div>
 
                                             {statusInfo.status === 'notStarted' && (
                                                 <div className="text-gray-600">
-                                                     Starts in: <strong>{statusInfo.daysRemaining} days</strong>
+                                                    {t.calculator.production.startsIn} <strong>{statusInfo.daysRemaining} {t.calculator.production.daysLower}</strong>
                                                 </div>
                                             )}
 
                                             {statusInfo.status === 'growing' && (
                                                 <>
                                                     <div className="text-gray-600">
-                                                         Day: <strong>{statusInfo.dayInCycle} / {statusInfo.totalDays}</strong>
+                                                        {t.calculator.production.day} <strong>{statusInfo.dayInCycle} / {statusInfo.totalDays}</strong>
                                                     </div>
                                                     <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
                                                         <div
@@ -5000,10 +4943,10 @@ const ProductionTimeline = ({ mode, MODES, projection, formatNumber, fatteningBa
                                                         ></div>
                                                     </div>
                                                     <div className="text-xs text-gray-500 text-right">
-                                                        {statusInfo.progressPercent.toFixed(0)}% complete
+                                                        {statusInfo.progressPercent.toFixed(0)}{t.calculator.production.complete}
                                                     </div>
                                                     <div className="text-gray-600">
-                                                         Pig-Out: <strong>{barn.pigOutDate}</strong>
+                                                        {t.calculator.production.pigOut} <strong>{barn.pigOutDate}</strong>
                                                     </div>
                                                 </>
                                             )}
@@ -5036,24 +4979,24 @@ const ProductionTimeline = ({ mode, MODES, projection, formatNumber, fatteningBa
             {/* Barn/Cohort Summary Table (only in barn mode) */}
             {mode === MODES.FATTENING && projection.isBarnMode && projection.barnResults && (
                 <div className="bg-white rounded-lg shadow-sm border p-6">
-                    <h3 className="text-lg font-bold text-gray-800 mb-4"> Barn / Cohort Summary</h3>
+                    <h3 className="text-lg font-bold text-gray-800 mb-4">{t.calculator.production.barnCohortSummary}</h3>
                     <div className="overflow-x-auto">
                         <table className="min-w-full divide-y divide-gray-200">
                             <thead className="bg-gray-50">
                                 <tr>
-                                    <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700">Barn</th>
-                                    <th className="px-4 py-2 text-right text-xs font-semibold text-gray-700">Population</th>
-                                    <th className="px-4 py-2 text-center text-xs font-semibold text-gray-700">Pig-In Date</th>
-                                    <th className="px-4 py-2 text-center text-xs font-semibold text-gray-700">Pig-Out Date</th>
-                                    <th className="px-4 py-2 text-center text-xs font-semibold text-gray-700">Next Batch</th>
-                                    <th className="px-4 py-2 text-right text-xs font-semibold text-gray-700">Days</th>
-                                    <th className="px-4 py-2 text-center text-xs font-semibold text-gray-700">Exit</th>
-                                    <th className="px-4 py-2 text-right text-xs font-semibold text-gray-700">Weight (kg)</th>
-                                    <th className="px-4 py-2 text-right text-xs font-semibold text-gray-700">Quantity</th>
-                                    <th className="px-4 py-2 text-right text-xs font-semibold text-gray-700">Total Kg</th>
-                                    <th className="px-4 py-2 text-right text-xs font-semibold text-gray-700">Revenue (M)</th>
-                                    <th className="px-4 py-2 text-right text-xs font-semibold text-gray-700">Cost (M)</th>
-                                    <th className="px-4 py-2 text-right text-xs font-semibold text-gray-700">Profit (M)</th>
+                                    <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700">{t.calculator.production.barn}</th>
+                                    <th className="px-4 py-2 text-right text-xs font-semibold text-gray-700">{t.calculator.barnManagement.population}</th>
+                                    <th className="px-4 py-2 text-center text-xs font-semibold text-gray-700">{t.calculator.production.pigInDate}</th>
+                                    <th className="px-4 py-2 text-center text-xs font-semibold text-gray-700">{t.calculator.production.pigOutDate}</th>
+                                    <th className="px-4 py-2 text-center text-xs font-semibold text-gray-700">{t.calculator.production.nextBatch}</th>
+                                    <th className="px-4 py-2 text-right text-xs font-semibold text-gray-700">{t.calculator.production.days}</th>
+                                    <th className="px-4 py-2 text-center text-xs font-semibold text-gray-700">{t.calculator.production.exit}</th>
+                                    <th className="px-4 py-2 text-right text-xs font-semibold text-gray-700">{t.calculator.production.weightKg}</th>
+                                    <th className="px-4 py-2 text-right text-xs font-semibold text-gray-700">{t.calculator.production.quantity}</th>
+                                    <th className="px-4 py-2 text-right text-xs font-semibold text-gray-700">{t.calculator.production.totalKg}</th>
+                                    <th className="px-4 py-2 text-right text-xs font-semibold text-gray-700">{t.calculator.production.revenueM}</th>
+                                    <th className="px-4 py-2 text-right text-xs font-semibold text-gray-700">{t.calculator.production.costM}</th>
+                                    <th className="px-4 py-2 text-right text-xs font-semibold text-gray-700">{t.calculator.production.profitM}</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-200">
@@ -5114,7 +5057,7 @@ const ProductionTimeline = ({ mode, MODES, projection, formatNumber, fatteningBa
                                 ))}
                                 {/* Total Row */}
                                 <tr className="bg-blue-50 font-semibold">
-                                    <td className="px-4 py-2 text-sm text-gray-900">TOTAL</td>
+                                    <td className="px-4 py-2 text-sm text-gray-900">{t.calculator.production.total}</td>
                                     <td className="px-4 py-2 text-sm text-right text-gray-900">{formatNumber(projection.barnResults.reduce((sum, b) => sum + b.population, 0))}</td>
                                     <td className="px-4 py-2" colSpan="4"></td>
                                     <td className="px-4 py-2 text-sm text-center text-gray-500 text-xs">-</td>
@@ -5224,15 +5167,15 @@ const ProductionTimeline = ({ mode, MODES, projection, formatNumber, fatteningBa
                         {/* Production Summary Boxes with Period Filter */}
                         <div className="bg-white rounded-lg shadow-sm border p-6 mb-6">
                             <div className="flex justify-between items-center mb-4">
-                                <h3 className="text-lg font-bold text-gray-800"> Production Summary</h3>
+                                <h3 className="text-lg font-bold text-gray-800">{t.calculator.production.productionSummary}</h3>
                                 <div className="flex items-center gap-2">
-                                    <label className="text-sm font-medium text-gray-700">Period:</label>
+                                    <label className="text-sm font-medium text-gray-700">{t.calculator.production.period}</label>
                                     <select
                                         value={selectedPeriod}
                                         onChange={(e) => setSelectedPeriod(e.target.value)}
                                         className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                     >
-                                        <option value="all">All Years</option>
+                                        <option value="all">{t.calculator.production.allYears}</option>
                                         {availableYears.map(year => (
                                             <option key={year} value={year}>{year}</option>
                                         ))}
@@ -5242,22 +5185,22 @@ const ProductionTimeline = ({ mode, MODES, projection, formatNumber, fatteningBa
 
                             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                                 <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-4 border border-blue-200">
-                                    <div className="text-xs text-blue-600 font-semibold mb-1">Total Pigs Purchased</div>
+                                    <div className="text-xs text-blue-600 font-semibold mb-1">{t.calculator.production.totalPigsPurchased}</div>
                                     <div className="text-2xl font-bold text-blue-700">
                                         {formatNumber(filteredSummary.totalPigsIn)}
                                     </div>
                                 </div>
                                 <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-4 border border-green-200">
-                                    <div className="text-xs text-green-700 font-semibold mb-1">Total Pigs Sold</div>
+                                    <div className="text-xs text-green-700 font-semibold mb-1">{t.calculator.production.totalPigsSold}</div>
                                     <div className="text-2xl font-bold text-green-800">
                                         {formatNumber(filteredSummary.totalPigsSurvived)}
                                     </div>
                                     <div className="text-[10px] text-green-600 mt-1">
-                                        Survived: {formatNumber(filteredSummary.totalPigsSurvived)}
+                                        {t.calculator.production.survived} {formatNumber(filteredSummary.totalPigsSurvived)}
                                     </div>
                                 </div>
                                 <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-lg p-4 border border-orange-200">
-                                    <div className="text-xs text-orange-700 font-semibold mb-1">Avg Mortality Rate</div>
+                                    <div className="text-xs text-orange-700 font-semibold mb-1">{t.calculator.production.avgMortalityRate}</div>
                                     <div className="text-2xl font-bold text-orange-800">
                                         {filteredSummary.avgMortality.toFixed(1)}%
                                     </div>
@@ -5268,9 +5211,9 @@ const ProductionTimeline = ({ mode, MODES, projection, formatNumber, fatteningBa
                         {/* Production Schedule Table */}
                         <div className="bg-white rounded-lg shadow-sm border p-6">
                             <div className="flex justify-between items-center mb-4">
-                                <h3 className="text-lg font-bold text-gray-800"> PRODUCTION SCHEDULE (Forecasting)</h3>
+                                <h3 className="text-lg font-bold text-gray-800">{t.calculator.production.productionSchedule}</h3>
                                 <div className="text-sm text-gray-600">
-                                    Showing: <strong>{sortedCohorts.length}</strong> of <strong>{futureCohorts.length}</strong> cohorts
+                                    {t.calculator.production.showing} <strong>{sortedCohorts.length}</strong> {t.calculator.production.of} <strong>{futureCohorts.length}</strong> {t.calculator.production.cohorts}
                                 </div>
                             </div>
 
@@ -5283,32 +5226,32 @@ const ProductionTimeline = ({ mode, MODES, projection, formatNumber, fatteningBa
                                                 className="px-3 py-2 text-left font-semibold text-gray-700 cursor-pointer hover:bg-gray-100"
                                                 onClick={() => handleSort('cohortCode')}
                                             >
-                                                Cohort Code <SortIndicator columnKey="cohortCode" />
+                                                {t.calculator.production.cohortCode} <SortIndicator columnKey="cohortCode" />
                                             </th>
                                             <th
                                                 className="px-3 py-2 text-left font-semibold text-gray-700 cursor-pointer hover:bg-gray-100"
                                                 onClick={() => handleSort('barnName')}
                                             >
-                                                Barn <SortIndicator columnKey="barnName" />
+                                                {t.calculator.production.barn} <SortIndicator columnKey="barnName" />
                                             </th>
-                                            <th className="px-3 py-2 text-right font-semibold text-gray-700">Population</th>
+                                            <th className="px-3 py-2 text-right font-semibold text-gray-700">{t.calculator.barnManagement.population}</th>
                                             <th
                                                 className="px-3 py-2 text-center font-semibold text-gray-700 cursor-pointer hover:bg-gray-100"
                                                 onClick={() => handleSort('pigInDate')}
                                             >
-                                                Pig-In Date <SortIndicator columnKey="pigInDate" />
+                                                {t.calculator.production.pigInDate} <SortIndicator columnKey="pigInDate" />
                                             </th>
                                             <th
                                                 className="px-3 py-2 text-center font-semibold text-gray-700 cursor-pointer hover:bg-gray-100"
                                                 onClick={() => handleSort('pigOutDate')}
                                             >
-                                                Pig-Out Date <SortIndicator columnKey="pigOutDate" />
+                                                {t.calculator.production.pigOutDate} <SortIndicator columnKey="pigOutDate" />
                                             </th>
-                                            <th className="px-3 py-2 text-right font-semibold text-gray-700">Days</th>
-                                            <th className="px-3 py-2 text-center font-semibold text-gray-700">Exit</th>
-                                            <th className="px-3 py-2 text-right font-semibold text-gray-700">Weight (kg)</th>
-                                            <th className="px-3 py-2 text-right font-semibold text-gray-700">Quantity</th>
-                                            <th className="px-3 py-2 text-right font-semibold text-gray-700">Total Kg</th>
+                                            <th className="px-3 py-2 text-right font-semibold text-gray-700">{t.calculator.production.days}</th>
+                                            <th className="px-3 py-2 text-center font-semibold text-gray-700">{t.calculator.production.exit}</th>
+                                            <th className="px-3 py-2 text-right font-semibold text-gray-700">{t.calculator.production.weightKg}</th>
+                                            <th className="px-3 py-2 text-right font-semibold text-gray-700">{t.calculator.production.quantity}</th>
+                                            <th className="px-3 py-2 text-right font-semibold text-gray-700">{t.calculator.production.totalKg}</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-gray-200">
@@ -5402,7 +5345,7 @@ const ProductionTimeline = ({ mode, MODES, projection, formatNumber, fatteningBa
                                                 rows.push(
                                                     <tr key={`year-${year}`} className="bg-blue-50 font-semibold border-t-2 border-blue-200">
                                                         <td className="px-3 py-2 text-sm text-gray-900" colSpan="2">
-                                                             {year} TOTAL ({dateLabel})
+                                                            {year} {t.calculator.production.total} ({dateLabel})
                                                         </td>
                                                         <td className="px-3 py-2 text-sm text-right text-gray-900">{formatNumber(yearTotalPopulation)}</td>
                                                         <td className="px-3 py-2" colSpan="5"></td>
@@ -5427,10 +5370,10 @@ const ProductionTimeline = ({ mode, MODES, projection, formatNumber, fatteningBa
                 <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
                     <div className="bg-gradient-to-r from-green-600 to-emerald-600 text-white px-4 py-3 flex items-center justify-between">
                         <span className="font-semibold">
-                             {t.calculator.production.title}
+                             {t.calculator.productionReport.title}
                         </span>
                         <div className="flex items-center gap-2 no-print">
-                            <label className="text-xs text-white/90">{t.calculator.production.filter}</label>
+                            <label className="text-xs text-white/90">{t.calculator.productionReport.filter}</label>
                             <select
                                 value={selectedYear}
                                 onChange={(e) => setSelectedYear(e.target.value)}
@@ -5446,21 +5389,21 @@ const ProductionTimeline = ({ mode, MODES, projection, formatNumber, fatteningBa
                         <table className="min-w-full text-xs">
                             <thead className="bg-gray-100">
                                 <tr>
-                                    <th className="px-2 py-2 text-left font-semibold sticky left-0 bg-gray-100 z-10 border-r">{t.calculator.production.month}</th>
-                                    <th className="px-2 py-2 text-right font-semibold">{t.calculator.production.activeSows}</th>
-                                    <th className="px-2 py-2 text-right font-semibold">{t.calculator.production.giltArrive}</th>
-                                    <th className="px-2 py-2 text-right font-semibold">{t.calculator.production.sowProdIn}</th>
-                                    <th className="px-2 py-2 text-right font-semibold">{t.calculator.production.sowCulled}</th>
-                                    <th className="px-2 py-2 text-right font-semibold">{t.calculator.production.netChange}</th>
-                                    <th className="px-2 py-2 text-right font-semibold">{t.calculator.production.mating}</th>
-                                    <th className="px-2 py-2 text-right font-semibold">{t.calculator.production.farrowing}</th>
-                                    <th className="px-2 py-2 text-right font-semibold">{t.calculator.production.weaning}</th>
+                                    <th className="px-2 py-2 text-left font-semibold sticky left-0 bg-gray-100 z-10 border-r">{t.calculator.productionReport.month}</th>
+                                    <th className="px-2 py-2 text-right font-semibold">{t.calculator.productionReport.activeSows}</th>
+                                    <th className="px-2 py-2 text-right font-semibold">{t.calculator.productionReport.giltArrive}</th>
+                                    <th className="px-2 py-2 text-right font-semibold">{t.calculator.productionReport.sowProdIn}</th>
+                                    <th className="px-2 py-2 text-right font-semibold">{t.calculator.productionReport.sowCulled}</th>
+                                    <th className="px-2 py-2 text-right font-semibold">{t.calculator.productionReport.netChange}</th>
+                                    <th className="px-2 py-2 text-right font-semibold">{t.calculator.productionReport.mating}</th>
+                                    <th className="px-2 py-2 text-right font-semibold">{t.calculator.productionReport.farrowing}</th>
+                                    <th className="px-2 py-2 text-right font-semibold">{t.calculator.productionReport.weaning}</th>
                                     {mode === MODES.INTEGRATED && (
                                         <>
-                                            <th className="px-2 py-2 text-right font-semibold">Nursery Piglet In</th>
-                                            <th className="px-2 py-2 text-right font-semibold">Nursery Piglet Out</th>
-                                            <th className="px-2 py-2 text-right font-semibold">Fattening Piglet In</th>
-                                            <th className="px-2 py-2 text-right font-semibold">Fattening Piglet Out</th>
+                                            <th className="px-2 py-2 text-right font-semibold">{t.calculator.productionReport.nurseryPigletIn}</th>
+                                            <th className="px-2 py-2 text-right font-semibold">{t.calculator.productionReport.nurseryPigletOut}</th>
+                                            <th className="px-2 py-2 text-right font-semibold">{t.calculator.productionReport.fatteningPigletIn}</th>
+                                            <th className="px-2 py-2 text-right font-semibold">{t.calculator.productionReport.fatteningPigletOut}</th>
                                         </>
                                     )}
                                 </tr>
@@ -5620,21 +5563,21 @@ const FinancialTimeline = ({ mode, MODES, projection, formatNumber, formatCurren
             {/* Barn Costing Table (only in barn mode) */}
             {mode === MODES.FATTENING && projection.isBarnMode && projection.barnResults && (
                 <div className="bg-white rounded-lg shadow-sm border p-6">
-                    <h3 className="text-lg font-bold text-gray-800 mb-4"> Barn / Cohort Costing Analysis</h3>
+                    <h3 className="text-lg font-bold text-gray-800 mb-4">{t.calculator.financial.barnCohortCostingAnalysis}</h3>
                     <div className="overflow-x-auto">
                         <table className="min-w-full divide-y divide-gray-200">
                             <thead className="bg-gray-50">
                                 <tr>
-                                    <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700">Barn</th>
-                                    <th className="px-4 py-2 text-right text-xs font-semibold text-gray-700">Piglet Cost (M)</th>
-                                    <th className="px-4 py-2 text-right text-xs font-semibold text-gray-700">Feed Cost (M)</th>
-                                    <th className="px-4 py-2 text-right text-xs font-semibold text-gray-700">AHP (M)</th>
-                                    <th className="px-4 py-2 text-right text-xs font-semibold text-gray-700">Labor (M)</th>
-                                    <th className="px-4 py-2 text-right text-xs font-semibold text-gray-700">Overhead (M)</th>
-                                    <th className="px-4 py-2 text-right text-xs font-semibold text-gray-700">Utilities (M)</th>
-                                    <th className="px-4 py-2 text-right text-xs font-semibold text-gray-700">Total Cost (M)</th>
-                                    <th className="px-4 py-2 text-right text-xs font-semibold text-gray-700">Cost/Pig</th>
-                                    <th className="px-4 py-2 text-right text-xs font-semibold text-gray-700">Cost/Kg</th>
+                                    <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700">{t.calculator.production.barn}</th>
+                                    <th className="px-4 py-2 text-right text-xs font-semibold text-gray-700">{t.calculator.financial.pigletCostM}</th>
+                                    <th className="px-4 py-2 text-right text-xs font-semibold text-gray-700">{t.calculator.financial.feedCostM}</th>
+                                    <th className="px-4 py-2 text-right text-xs font-semibold text-gray-700">{t.calculator.financial.ahpM}</th>
+                                    <th className="px-4 py-2 text-right text-xs font-semibold text-gray-700">{t.calculator.financial.laborM}</th>
+                                    <th className="px-4 py-2 text-right text-xs font-semibold text-gray-700">{t.calculator.financial.overheadM}</th>
+                                    <th className="px-4 py-2 text-right text-xs font-semibold text-gray-700">{t.calculator.financial.utilitiesM}</th>
+                                    <th className="px-4 py-2 text-right text-xs font-semibold text-gray-700">{t.calculator.financial.totalCostM}</th>
+                                    <th className="px-4 py-2 text-right text-xs font-semibold text-gray-700">{t.calculator.financial.costPerPig}</th>
+                                    <th className="px-4 py-2 text-right text-xs font-semibold text-gray-700">{t.calculator.financial.costPerKg}</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-200">
@@ -5654,7 +5597,7 @@ const FinancialTimeline = ({ mode, MODES, projection, formatNumber, formatCurren
                                 ))}
                                 {/* Total Row */}
                                 <tr className="bg-blue-50 font-semibold">
-                                    <td className="px-4 py-2 text-sm text-gray-900">TOTAL</td>
+                                    <td className="px-4 py-2 text-sm text-gray-900">{t.calculator.production.total}</td>
                                     <td className="px-4 py-2 text-sm text-right text-gray-900">{(projection.barnResults.reduce((sum, b) => sum + b.costs.pigletCost, 0) / 1000000).toFixed(2)}</td>
                                     <td className="px-4 py-2 text-sm text-right text-gray-900">{(projection.barnResults.reduce((sum, b) => sum + b.costs.feedCost, 0) / 1000000).toFixed(2)}</td>
                                     <td className="px-4 py-2 text-sm text-right text-gray-900">{(projection.barnResults.reduce((sum, b) => sum + b.costs.ahpCost, 0) / 1000000).toFixed(2)}</td>
@@ -5678,23 +5621,23 @@ const FinancialTimeline = ({ mode, MODES, projection, formatNumber, formatCurren
             {/* Comparative Barn Performance Table (only in barn mode) */}
             {mode === MODES.FATTENING && projection.isBarnMode && projection.barnResults && (
                 <div className="bg-white rounded-lg shadow-sm border p-6">
-                    <h3 className="text-lg font-bold text-gray-800 mb-4"> Comparative Barn Performance</h3>
+                    <h3 className="text-lg font-bold text-gray-800 mb-4">{t.calculator.financial.comparativeBarnPerformance}</h3>
                     <div className="overflow-x-auto">
                         <table className="min-w-full divide-y divide-gray-200">
                             <thead className="bg-gray-50">
                                 <tr>
-                                    <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700">Barn</th>
-                                    <th className="px-4 py-2 text-right text-xs font-semibold text-gray-700">ADG (kg/day)</th>
-                                    <th className="px-4 py-2 text-right text-xs font-semibold text-gray-700">FCR</th>
-                                    <th className="px-4 py-2 text-right text-xs font-semibold text-gray-700">Mortality %</th>
-                                    <th className="px-4 py-2 text-right text-xs font-semibold text-gray-700">Days to Market</th>
-                                    <th className="px-4 py-2 text-right text-xs font-semibold text-gray-700">Revenue/Pig</th>
-                                    <th className="px-4 py-2 text-right text-xs font-semibold text-gray-700">Cost/Pig</th>
-                                    <th className="px-4 py-2 text-right text-xs font-semibold text-gray-700">Profit/Pig</th>
-                                    <th className="px-4 py-2 text-right text-xs font-semibold text-gray-700">Revenue/Kg</th>
-                                    <th className="px-4 py-2 text-right text-xs font-semibold text-gray-700">Cost/Kg</th>
-                                    <th className="px-4 py-2 text-right text-xs font-semibold text-gray-700">Profit/Kg</th>
-                                    <th className="px-4 py-2 text-right text-xs font-semibold text-gray-700">ROI %</th>
+                                    <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700">{t.calculator.production.barn}</th>
+                                    <th className="px-4 py-2 text-right text-xs font-semibold text-gray-700">{t.calculator.financial.adgKgDay}</th>
+                                    <th className="px-4 py-2 text-right text-xs font-semibold text-gray-700">{t.calculator.financial.fcr}</th>
+                                    <th className="px-4 py-2 text-right text-xs font-semibold text-gray-700">{t.calculator.financial.mortalityPercent}</th>
+                                    <th className="px-4 py-2 text-right text-xs font-semibold text-gray-700">{t.calculator.financial.daysToMarket}</th>
+                                    <th className="px-4 py-2 text-right text-xs font-semibold text-gray-700">{t.calculator.financial.revenuePerPig}</th>
+                                    <th className="px-4 py-2 text-right text-xs font-semibold text-gray-700">{t.calculator.financial.costPerPig}</th>
+                                    <th className="px-4 py-2 text-right text-xs font-semibold text-gray-700">{t.calculator.financial.profitPerPig}</th>
+                                    <th className="px-4 py-2 text-right text-xs font-semibold text-gray-700">{t.calculator.financial.revenuePerKg}</th>
+                                    <th className="px-4 py-2 text-right text-xs font-semibold text-gray-700">{t.calculator.financial.costPerKg}</th>
+                                    <th className="px-4 py-2 text-right text-xs font-semibold text-gray-700">{t.calculator.financial.profitPerKg}</th>
+                                    <th className="px-4 py-2 text-right text-xs font-semibold text-gray-700">{t.calculator.financial.roiPercent}</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-200">
@@ -5727,7 +5670,7 @@ const FinancialTimeline = ({ mode, MODES, projection, formatNumber, formatCurren
                                 })}
                                 {/* Average Row */}
                                 <tr className="bg-blue-50 font-semibold">
-                                    <td className="px-4 py-2 text-sm text-gray-900">AVERAGE</td>
+                                    <td className="px-4 py-2 text-sm text-gray-900">{t.calculator.financial.average}</td>
                                     <td className="px-4 py-2 text-sm text-right text-gray-900">
                                         {(projection.barnResults.reduce((sum, b) => sum + b.effectiveParams.adg, 0) / projection.barnResults.length).toFixed(2)}
                                     </td>
@@ -5772,25 +5715,25 @@ const FinancialTimeline = ({ mode, MODES, projection, formatNumber, formatCurren
             {hasProductionData && (
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <div className="bg-white rounded-xl shadow-sm border-2 border-green-400 p-4">
-                        <div className="text-xs text-gray-500 mb-1">Total Revenue</div>
+                        <div className="text-xs text-gray-500 mb-1">{t.calculator.financial.totalRevenue}</div>
                         <div className="text-xl font-bold text-green-600">
                             {formatCurrency(financialSummary.totalRevenue, currency)}
                         </div>
                     </div>
                     <div className="bg-white rounded-xl shadow-sm border-2 border-red-400 p-4">
-                        <div className="text-xs text-gray-500 mb-1">Total Costs</div>
+                        <div className="text-xs text-gray-500 mb-1">{t.calculator.financial.totalCosts}</div>
                         <div className="text-xl font-bold text-red-600">
                             {formatCurrency(financialSummary.totalCosts, currency)}
                         </div>
                     </div>
                     <div className={`bg-white rounded-xl shadow-sm border-2 p-4 ${financialSummary.totalNetProfit >= 0 ? 'border-blue-400' : 'border-orange-400'}`}>
-                        <div className="text-xs text-gray-500 mb-1">Net Profit</div>
+                        <div className="text-xs text-gray-500 mb-1">{t.calculator.financial.netProfit}</div>
                         <div className={`text-xl font-bold ${financialSummary.totalNetProfit >= 0 ? 'text-blue-600' : 'text-orange-600'}`}>
                             {formatCurrency(financialSummary.totalNetProfit, currency)}
                         </div>
                     </div>
                     <div className="bg-white rounded-xl shadow-sm border-2 border-purple-400 p-4">
-                        <div className="text-xs text-gray-500 mb-1">Net Margin</div>
+                        <div className="text-xs text-gray-500 mb-1">{t.calculator.financial.netMargin}</div>
                         <div className="text-xl font-bold text-purple-600">
                             {financialSummary.netMargin.toFixed(1)}%
                         </div>
@@ -5803,10 +5746,10 @@ const FinancialTimeline = ({ mode, MODES, projection, formatNumber, formatCurren
                 <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
                     <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-4 py-3 flex items-center justify-between">
                         <span className="font-semibold">
-                             {t.calculator.financial.title} ({currency} {t.calculator.financial.million})
+                             {t.calculator.financialBreeding.title} ({currency} {t.calculator.financialBreeding.million})
                         </span>
                         <div className="flex items-center gap-2 no-print">
-                            <label className="text-xs text-white/90">{t.calculator.financial.filter}</label>
+                            <label className="text-xs text-white/90">{t.calculator.financialBreeding.filter}</label>
                             <select
                                 value={selectedYear}
                                 onChange={(e) => setSelectedYear(e.target.value)}
@@ -5821,13 +5764,13 @@ const FinancialTimeline = ({ mode, MODES, projection, formatNumber, formatCurren
                     <div className="overflow-x-auto">
                         {/* NEW: Yearly Financial Summary */}
                         {mode === MODES.INTEGRATED && (
-                            <MoneyYearSummary timeline={projection.timeline} formatCurrency={formatCurrency} formatNumber={formatNumber} />
+                            <MoneyYearSummary timeline={projection.timeline} formatCurrency={formatCurrency} formatNumber={formatNumber} t={t} />
                         )}
 
                         <table className="min-w-full text-xs">
                             <thead className="bg-gray-100">
                                 <tr>
-                                    <th className="px-2 py-2 text-left font-semibold sticky left-0 bg-gray-100 z-10 border-r">{t.calculator.financial.month}</th>
+                                    <th className="px-2 py-2 text-left font-semibold sticky left-0 bg-gray-100 z-10 border-r">{t.calculator.financialBreeding.month}</th>
 
                                     {mode === MODES.INTEGRATED && (
                                         <>
@@ -5841,7 +5784,7 @@ const FinancialTimeline = ({ mode, MODES, projection, formatNumber, formatCurren
                                             </th>
                                         </>
                                     )}
-                                    <th className="px-2 py-2 text-right font-bold text-gray-800 bg-gray-200 sticky right-0 z-10">{t.calculator.financial.netProfit}</th>
+                                    <th className="px-2 py-2 text-right font-bold text-gray-800 bg-gray-200 sticky right-0 z-10">{t.calculator.financialBreeding.netProfit}</th>
                                 </tr>
                                 <tr className="bg-gray-50 text-[10px] text-gray-600">
                                     <th className="sticky left-0 bg-gray-50 border-r"></th>
@@ -5858,21 +5801,21 @@ const FinancialTimeline = ({ mode, MODES, projection, formatNumber, formatCurren
                                             <th className="px-1 py-1 text-right bg-red-50/30">{t.calculator.financial.gilt}</th>
                                             <th className="px-1 py-1 text-right bg-red-50/30">{t.calculator.financial.feed}</th>
                                             <th className="px-1 py-1 text-right bg-red-50/30">{t.calculator.financial.ahp}</th>
-                                            <th className="px-1 py-1 text-right bg-red-50/30">Labor</th>
-                                            <th className="px-1 py-1 text-right bg-red-50/30">Overhead</th>
-                                            <th className="px-1 py-1 text-right bg-red-50/30">Utility</th>
-                                            <th className="px-1 py-1 text-right bg-red-100/50 font-bold">Total</th>
+                                            <th className="px-1 py-1 text-right bg-red-50/30">{t.calculator.financial.labor}</th>
+                                            <th className="px-1 py-1 text-right bg-red-50/30">{t.calculator.financial.overhead}</th>
+                                            <th className="px-1 py-1 text-right bg-red-50/30">{t.calculator.financial.utility}</th>
+                                            <th className="px-1 py-1 text-right bg-red-100/50 font-bold">{t.calculator.financial.total}</th>
                                         </>
                                     )}
                                     {mode === MODES.BREEDING && (
                                         <>
                                             {/* Revenue Breakdown Group */}
                                             <th colSpan={3} className="px-2 py-1 text-center bg-green-50 border-b border-green-100 text-green-800 font-semibold border-r">
-                                                {t.calculator.financial.revenueStreams}
+                                                {t.calculator.financialBreeding.revenueStreams}
                                             </th>
                                             {/* Costs Breakdown Group */}
                                             <th colSpan={7} className="px-2 py-1 text-center bg-red-50 border-b border-red-100 text-red-800 font-semibold border-r">
-                                                {t.calculator.financial.operationalCosts}
+                                                {t.calculator.financialBreeding.operationalCosts}
                                             </th>
                                         </>
                                     )}
@@ -5896,24 +5839,24 @@ const FinancialTimeline = ({ mode, MODES, projection, formatNumber, formatCurren
                                     {mode === MODES.BREEDING && (
                                         <>
                                             {/* Revenue breakdown */}
-                                            <th className="px-1 py-1 text-right bg-green-50/30">{t.calculator.financial.weaner}</th>
-                                            <th className="px-1 py-1 text-right bg-green-50/30">{t.calculator.financial.cullSow}</th>
-                                            <th className="px-1 py-1 text-right bg-green-100/50 font-bold">{t.calculator.financial.total}</th>
+                                            <th className="px-1 py-1 text-right bg-green-50/30">{t.calculator.financialBreeding.weaner}</th>
+                                            <th className="px-1 py-1 text-right bg-green-50/30">{t.calculator.financialBreeding.cullSow}</th>
+                                            <th className="px-1 py-1 text-right bg-green-100/50 font-bold">{t.calculator.financialBreeding.total}</th>
 
                                             {/* Cost breakdown */}
-                                            <th className="px-1 py-1 text-right bg-red-50/30">{t.calculator.financial.gilt}</th>
-                                            <th className="px-1 py-1 text-right bg-red-50/30">{t.calculator.financial.feed}</th>
-                                            <th className="px-1 py-1 text-right bg-red-50/30">{t.calculator.financial.ahp}</th>
-                                            <th className="px-1 py-1 text-right bg-red-50/30">{t.calculator.financial.labor}</th>
-                                            <th className="px-1 py-1 text-right bg-red-50/30">{t.calculator.financial.overhead}</th>
-                                            <th className="px-1 py-1 text-right bg-red-50/30">{t.calculator.financial.utility}</th>
-                                            <th className="px-1 py-1 text-right bg-red-100/50 font-bold">{t.calculator.financial.total}</th>
+                                            <th className="px-1 py-1 text-right bg-red-50/30">{t.calculator.financialBreeding.gilt}</th>
+                                            <th className="px-1 py-1 text-right bg-red-50/30">{t.calculator.financialBreeding.feed}</th>
+                                            <th className="px-1 py-1 text-right bg-red-50/30">{t.calculator.financialBreeding.ahp}</th>
+                                            <th className="px-1 py-1 text-right bg-red-50/30">{t.calculator.financialBreeding.labor}</th>
+                                            <th className="px-1 py-1 text-right bg-red-50/30">{t.calculator.financialBreeding.overhead}</th>
+                                            <th className="px-1 py-1 text-right bg-red-50/30">{t.calculator.financialBreeding.utility}</th>
+                                            <th className="px-1 py-1 text-right bg-red-100/50 font-bold">{t.calculator.financialBreeding.total}</th>
                                         </>
                                     )}
                                     {mode === MODES.FATTENING && (
                                         <>
                                             {/* Revenue breakdown - only Fattening */}
-                                            <th className="px-1 py-1 text-right bg-green-100/50 font-bold">Fattening</th>
+                                            <th className="px-1 py-1 text-right bg-green-100/50 font-bold">{t.calculator.financial.fattening}</th>
 
                                             {/* Cost breakdown */}
                                             <th className="px-1 py-1 text-right bg-red-50/30">{t.calculator.financial.weaner}</th>
@@ -6387,15 +6330,15 @@ const SummaryTab = ({ projection, formatCurrency, formatNumber }) => {
     );
 };
 
-const ScenariosTab = ({ scenarioName, setScenarioName, saveScenario, scenarios, deleteScenario, formatNumber }) => (
+const ScenariosTab = ({ scenarioName, setScenarioName, saveScenario, scenarios, deleteScenario, formatNumber, t }) => (
     <div className="space-y-6">
         {/* Save Scenario */}
         <div className="bg-white rounded-lg shadow-sm border p-4">
-            <h3 className="font-semibold text-gray-800 mb-3">Save Current Scenario</h3>
+            <h3 className="font-semibold text-gray-800 mb-3">{t.calculator.scenarios.saveCurrentScenario}</h3>
             <div className="flex gap-2">
                 <input
                     type="text"
-                    placeholder="Enter scenario name..."
+                    placeholder={t.calculator.scenarios.enterScenarioName}
                     value={scenarioName}
                     onChange={(e) => setScenarioName(e.target.value)}
                     className="flex-1 px-3 py-2 border rounded-lg"
@@ -6404,16 +6347,16 @@ const ScenariosTab = ({ scenarioName, setScenarioName, saveScenario, scenarios, 
                     onClick={saveScenario}
                     className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center gap-2"
                 >
-                    <Save size={16} /> Save
+                    <Save size={16} /> {t.calculator.scenarios.save}
                 </button>
             </div>
         </div>
 
         {/* Saved Scenarios */}
         <div className="bg-white rounded-lg shadow-sm border p-4">
-            <h3 className="font-semibold text-gray-800 mb-3">Saved Scenarios ({scenarios.length})</h3>
+            <h3 className="font-semibold text-gray-800 mb-3">{t.calculator.scenarios.savedScenarios} ({scenarios.length})</h3>
             {scenarios.length === 0 ? (
-                <div className="text-center text-gray-500 py-8">No scenarios saved yet</div>
+                <div className="text-center text-gray-500 py-8">{t.calculator.scenarios.noScenariosYet}</div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                     {scenarios.map((s) => (
@@ -6434,9 +6377,9 @@ const ScenariosTab = ({ scenarioName, setScenarioName, saveScenario, scenarios, 
                             </div>
                             <div className="text-xs space-y-1">
                                 <div className="flex justify-between">
-                                    <span>Net Profit:</span>
+                                    <span>{t.calculator.scenarios.netProfit}</span>
                                     <span className={s.summary.totalNetProfit >= 0 ? 'text-green-600' : 'text-red-600'}>
-                                        {formatNumber(s.summary.totalNetProfit, 2)} M
+                                        {formatNumber(s.summary.totalNetProfit, 2)} {t.calculator.common.million}
                                     </span>
                                 </div>
                             </div>
@@ -6529,7 +6472,7 @@ const SetupTab = ({ mode, MODES, cohorts, setCohorts, addCohort, deleteCohort, u
     );
 };
 
-const MoneyYearSummary = ({ timeline, formatCurrency, formatNumber }) => {
+const MoneyYearSummary = ({ timeline, formatCurrency, formatNumber, t }) => {
     // Aggregate by Year
     const yearlyData = useMemo(() => {
         const result = {};
@@ -6579,20 +6522,20 @@ const MoneyYearSummary = ({ timeline, formatCurrency, formatNumber }) => {
         <div className="mb-6 bg-white rounded-lg shadow-sm border overflow-hidden">
             <div className="bg-gradient-to-r from-blue-50 to-indigo-50 px-4 py-2 border-b flex justify-between items-center">
                 <h4 className="font-bold text-blue-900 flex items-center gap-2">
-                    <Calendar size={16} /> Yearly Financial Summary
+                    <Calendar size={16} /> {t.calculator.financial.yearlyFinancialSummary}
                 </h4>
             </div>
             <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                     <thead>
                         <tr className="bg-gray-50 text-gray-600 border-b">
-                            <th className="px-3 py-2 text-left">Year</th>
-                            <th className="px-3 py-2 text-right">Revenue</th>
-                            <th className="px-3 py-2 text-right">Op. Costs</th>
-                            <th className="px-3 py-2 text-right">Gilt Purchase</th>
-                            <th className="px-3 py-2 text-right font-bold text-gray-800">Total Costs</th>
-                            <th className="px-3 py-2 text-right font-bold text-gray-800">Net Profit</th>
-                            <th className="px-3 py-2 text-right">Margin</th>
+                            <th className="px-3 py-2 text-left">{t.calculator.financial.year}</th>
+                            <th className="px-3 py-2 text-right">{t.calculator.financial.revenue}</th>
+                            <th className="px-3 py-2 text-right">{t.calculator.financial.opCosts}</th>
+                            <th className="px-3 py-2 text-right">{t.calculator.financial.giltPurchase}</th>
+                            <th className="px-3 py-2 text-right font-bold text-gray-800">{t.calculator.financial.totalCosts}</th>
+                            <th className="px-3 py-2 text-right font-bold text-gray-800">{t.calculator.financial.netProfit}</th>
+                            <th className="px-3 py-2 text-right">{t.calculator.financial.margin}</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y">
@@ -7230,7 +7173,7 @@ export default function PigFarmCalculator({ onBack }) { // onBack prop added
                     )}
                     {activeTab === 'production' && (
                         <div className="space-y-6">
-                            {mode === MODES.INTEGRATED && <BiologicalTimelineExample />}
+                            {mode === MODES.INTEGRATED && <BiologicalTimelineExample t={t} />}
 
                             <ProductionTimeline
                                 mode={mode}
@@ -7243,9 +7186,7 @@ export default function PigFarmCalculator({ onBack }) { // onBack prop added
                                 t={t}
                             />
 
-                            {mode === MODES.INTEGRATED && (
-                                <MatingCohortTracker dailyEvents={projection.dailyEvents} />
-                            )}
+
                         </div>
                     )}
                     {activeTab === 'financial' && (
@@ -7267,6 +7208,7 @@ export default function PigFarmCalculator({ onBack }) { // onBack prop added
                             scenarios={scenarios}
                             deleteScenario={deleteScenario}
                             formatNumber={formatNumber}
+                            t={t}
                         />
                     )}
                 </div>
