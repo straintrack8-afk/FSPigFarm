@@ -1095,8 +1095,7 @@ function calculateIntegratedMode(cohorts, params, costParams, months, integrated
         matingSystem: integratedInputs.matingSystem || 'weekly',
         batchInterval: integratedInputs.batchInterval || 'weekly',
 
-        // Derived Params for Calculation Logic
-        giltLeadTime: Math.ceil((integratedInputs.giltToFirstMating || 45) / 30), // Convert days to months
+
         // Cost Params (passed for financial calc)
         costParams: costParams,
         fatteningCostParams: integratedInputs.fatteningCostParams // Assuming this might be needed or we use passed objects
